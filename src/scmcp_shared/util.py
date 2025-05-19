@@ -1,6 +1,7 @@
 import inspect
 import os
 from pathlib import Path
+from fastmcp.server.dependencies import get_context
 
 
 
@@ -183,4 +184,17 @@ async def get_figure(request):
 
 def add_figure_route(server):
     from starlette.routing import Route
-    server._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]    
+    server._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]
+
+
+def get_ads():
+    ctx = get_context()
+    ads = ctx.request_context.lifespan_context
+    return ads
+
+
+def generate_msg(request, adata, ads):
+    kwargs = request.model_dump()
+    sampleid = kwargs.get("sampleid")
+    dtype = kwargs.get("dtype", "exp")
+    return {"sampleid": sampleid or ads.active_id, "dtype": dtype, "adata": adata}
