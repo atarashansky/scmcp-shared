@@ -1,1 +1,1 @@
-from  .io import *
+from .base import AdataModel
