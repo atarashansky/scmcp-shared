@@ -11,10 +11,9 @@ ul_mcp = FastMCP("SCMCP-Util-Server")
 
 
 @ul_mcp.tool()
-async def query_op_log(n=5):
+async def query_op_log(request: QueryOpLogModel = QueryOpLogModel()):
     """Query the adata operation log"""
-    ads = get_ads()
-    adata = ads.get_adata()
+    adata = get_ads().get_adata(request=request)
     op_dic = adata.uns["operation"]["op"]
     opids = adata.uns["operation"]["opid"][-n:]
     op_list = []

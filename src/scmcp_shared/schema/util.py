@@ -128,3 +128,11 @@ class AddLayerModel(AdataModel):
         description="Name of the layer to add to adata.layers."
     )
  
+
+class QueryOpLogModel(AdataModel):
+    """QueryOpLogModel"""    
+    n: int = Field(
+        default=10,
+        description="Number of operations to return."
+    )
+    
