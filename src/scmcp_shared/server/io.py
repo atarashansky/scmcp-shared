@@ -4,32 +4,22 @@ from pathlib import Path
 import scanpy as sc
 from fastmcp import FastMCP , Context
 from ..schema.io import *
-from ..util import filter_args, forward_request
+from ..util import filter_args, forward_request, get_ads, generate_msg
 
 
 io_mcp = FastMCP("SCMCP-IO-Server")
 
 
 @io_mcp.tool()
-async def read(
-    request: ReadModel, 
-    ctx: Context,
-    sampleid: str = Field(default=None, description="adata sampleid"),
-    dtype: str = Field(default="exp", description="adata.X data type")
-):
+async def read(request: ReadModel):
     """
-    Read data from various file formats (h5ad, 10x, text files, etc.) or directory path.
+    Read data from 10X directory or various file formats (h5ad, 10x, text files, etc.).
     """
     try:
-        result = await forward_request("io_read", request, sampleid=sampleid, dtype=dtype)
+        result = await forward_request("io_read", request)
         if result is not None:
             return result        
         kwargs = request.model_dump()
-        ads = ctx.request_context.lifespan_context
-        if sampleid is not None:
-            ads.active_id = sampleid
-        else:
-            ads.active_id = f"adata{len(ads.adata_dic[dtype])}"
 
         file = Path(kwargs.get("filename", None))
         if file.is_dir():
@@ -43,11 +33,20 @@ async def read(
                 adata = adata.T
         else:
             raise FileNotFoundError(f"{kwargs['filename']} does not exist")
+
+        sampleid = kwargs.get("sampleid", None)
+        adtype = kwargs.get("adtype", "exp")
+        ads = get_ads()
+        if sampleid is not None:
+            ads.active_id = sampleid
+        else:
+            ads.active_id = f"adata{len(ads.adata_dic[adtype])}"
+            
         adata.layers["counts"] = adata.X
         adata.var_names_make_unique()
         adata.obs_names_make_unique()
-        ads.set_adata(adata, sampleid=sampleid, sdtype=dtype)
-        return {"sampleid": sampleid or ads.active_id, "dtype": dtype, "adata": adata}
+        ads.set_adata(adata, request=request)
+        return generate_msg(request, adata, ads)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
             raise Exception(f"{str(e.__context__)}")
@@ -56,20 +55,15 @@ async def read(
 
 
 @io_mcp.tool()
-async def write(
-    request: WriteModel, 
-    ctx: Context,
-    sampleid: str = Field(default=None, description="adata sampleid"),
-    dtype: str = Field(default="exp", description="adata.X data type")
-):
+async def write(request: WriteModel):
     """save adata into a file.
     """
     try:
-        result = await forward_request("io_write", request, sampleid=sampleid, dtype=dtype)
+        result = await forward_request("io_write", request)
         if result is not None:
             return result
-        ads = ctx.request_context.lifespan_context
-        adata = ads.get_adata(sampleid=sampleid, dtype=dtype)
+        ads = get_ads()
+        adata = ads.get_adata(request=request)
         kwargs = request.model_dump()
         sc.write(kwargs["filename"], adata)
         return {"filename": kwargs["filename"], "msg": "success to save file"}
