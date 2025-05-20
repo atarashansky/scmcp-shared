@@ -4,14 +4,14 @@ from pydantic import (
     computed_field,
     field_validator,
     model_validator,
-    BaseModel
 )
+from .base import AdataModel
 from typing import Optional, Union, List, Dict, Any
 from typing import Literal
 import numpy as np
 
 
-class FilterCells(BaseModel):
+class FilterCells(AdataModel):
     """Input schema for the filter_cells preprocessing tool."""
     
     min_counts: Optional[int] = Field(
@@ -42,7 +42,7 @@ class FilterCells(BaseModel):
         return v
 
 
-class FilterGenes(BaseModel):
+class FilterGenes(AdataModel):
     """Input schema for the filter_genes preprocessing tool."""
     
     min_counts: Optional[int] = Field(
@@ -73,7 +73,7 @@ class FilterGenes(BaseModel):
         return v
 
 
-class SubsetCellModel(BaseModel):
+class SubsetCellModel(AdataModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
     obs_key: Optional[str] = Field(
         default=None,
@@ -109,7 +109,7 @@ class SubsetCellModel(BaseModel):
     )
 
 
-class SubsetGeneModel(BaseModel):
+class SubsetGeneModel(AdataModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
     min_counts: Optional[int] = Field(
         default=None,
@@ -145,7 +145,7 @@ class SubsetGeneModel(BaseModel):
     )
 
 
-class CalculateQCMetrics(BaseModel):
+class CalculateQCMetrics(AdataModel):
     """Input schema for the calculate_qc_metrics preprocessing tool."""
     
     expr_type: str = Field(
@@ -196,7 +196,7 @@ class CalculateQCMetrics(BaseModel):
     
 
 
-class Log1PModel(BaseModel):
+class Log1PModel(AdataModel):
     """Input schema for the log1p preprocessing tool."""
     
     base: Optional[Union[int, float]] = Field(
@@ -232,64 +232,8 @@ class Log1PModel(BaseModel):
         return v
 
 
-class PCAModel(BaseModel):
-    """Input schema for the PCA preprocessing tool."""
-    
-    n_comps: Optional[int] = Field(
-        default=None,
-        description="Number of principal components to compute. Defaults to 50 or 1 - minimum dimension size.",
-        gt=0
-    )
-    
-    layer: Optional[str] = Field(
-        default=None,
-        description="If provided, which element of layers to use for PCA."
-    )
-    
-    zero_center: Optional[bool] = Field(
-        default=True,
-        description="If True, compute standard PCA from covariance matrix."
-    )
-    
-    svd_solver: Optional[Literal["arpack", "randomized", "auto", "lobpcg", "tsqr"]] = Field(
-        default=None,
-        description="SVD solver to use."
-    )
-    mask_var: Optional[Union[str, bool]] = Field(
-        default=None,
-        description="Boolean mask or string referring to var column for subsetting genes."
-    )
-    dtype: str = Field(
-        default="float32",
-        description="Numpy data type string for the result."
-    )
-    chunked: bool = Field(
-        default=False,
-        description="If True, perform an incremental PCA on segments."
-    )
-    
-    chunk_size: Optional[int] = Field(
-        default=None,
-        description="Number of observations to include in each chunk.",
-        gt=0
-    )
-    
-    @field_validator('n_comps', 'chunk_size')
-    def validate_positive_integers(cls, v: Optional[int]) -> Optional[int]:
-        """Validate positive integers"""
-        if v is not None and v <= 0:
-            raise ValueError("must be a positive integer")
-        return v
-    
-    @field_validator('dtype')
-    def validate_dtype(cls, v: str) -> str:
-        """Validate numpy dtype"""
-        if v not in ["float32", "float64"]:
-            raise ValueError("dtype must be either 'float32' or 'float64'")
-        return v
 
-
-class HighlyVariableGenesModel(BaseModel):
+class HighlyVariableGenesModel(AdataModel):
     """Input schema for the highly_variable_genes preprocessing tool."""
     
     layer: Optional[str] = Field(
@@ -363,7 +307,7 @@ class HighlyVariableGenesModel(BaseModel):
         return v
 
 
-class RegressOutModel(BaseModel):
+class RegressOutModel(AdataModel):
     """Input schema for the regress_out preprocessing tool."""
     
     keys: Union[str, List[str]] = Field(
@@ -396,7 +340,7 @@ class RegressOutModel(BaseModel):
         raise ValueError("keys must be a string or list of strings")
 
 
-class ScaleModel(BaseModel):
+class ScaleModel(AdataModel):
     """Input schema for the scale preprocessing tool."""
     
     zero_center: bool = Field(
@@ -432,7 +376,7 @@ class ScaleModel(BaseModel):
         return v
 
 
-class CombatModel(BaseModel):
+class CombatModel(AdataModel):
     """Input schema for the combat batch effect correction tool."""
     
     key: str = Field(
@@ -461,7 +405,7 @@ class CombatModel(BaseModel):
         return v
 
 
-class ScrubletModel(BaseModel):
+class ScrubletModel(AdataModel):
     """Input schema for the scrublet doublet prediction tool."""
     
     adata_sim: Optional[str] = Field(
@@ -567,7 +511,7 @@ class ScrubletModel(BaseModel):
         return v.lower()
 
 
-class NeighborsModel(BaseModel):
+class NeighborsModel(AdataModel):
     """Input schema for the neighbors graph construction tool."""
     
     n_neighbors: int = Field(
@@ -645,7 +589,7 @@ class NeighborsModel(BaseModel):
         return v
 
 
-class NormalizeTotalModel(BaseModel):
+class NormalizeTotalModel(AdataModel):
     """Input schema for the normalize_total preprocessing tool."""
     
     target_sum: Optional[float] = Field(

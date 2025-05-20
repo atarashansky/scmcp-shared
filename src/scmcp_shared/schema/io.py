@@ -1,16 +1,13 @@
 from pydantic import (
     Field,
-    ValidationInfo,
-    computed_field,
     field_validator,
     model_validator,
-    BaseModel
 )
-from typing import Optional, Union, Literal, Any, Sequence, Dict
+from typing import Optional, Literal
+from .base import AdataModel
 
 
-
-class ReadModel(BaseModel):
+class ReadModel(AdataModel):
     """Input schema for the read tool."""
     filename: str = Field(
         ...,
@@ -89,7 +86,7 @@ class ReadModel(BaseModel):
         return v
 
 
-class WriteModel(BaseModel):
+class WriteModel(AdataModel):
     """Input schema for the write tool."""
     filename: str = Field(
         description="Path to save the file. If no extension is provided, the default format will be used."
@@ -113,7 +110,7 @@ class WriteModel(BaseModel):
         return v
     
     @model_validator(mode='after')
-    def validate_extension_compression(self) -> 'WriteInput':
+    def validate_extension_compression(self) -> 'WriteModel':
         # If ext is provided and not h5, compression should be None
         if self.ext is not None and self.ext != 'h5' and self.compression is not None:
             raise ValueError("Compression can only be used with h5 files")

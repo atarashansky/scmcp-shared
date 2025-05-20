@@ -1,6 +1,5 @@
 
 from pydantic import (
-    BaseModel,
     Field,
     ValidationInfo,
     computed_field,
@@ -8,10 +7,10 @@ from pydantic import (
     model_validator,
 )
 from typing import Optional, Union, List, Dict, Any, Callable, Collection, Literal
+from .base import AdataModel
 
 
-
-class MarkVarModel(BaseModel):
+class MarkVarModel(AdataModel):
     """Determine or mark if each gene meets specific conditions and store results in adata.var as boolean values"""
     
     var_name: str = Field(
@@ -33,15 +32,15 @@ class MarkVarModel(BaseModel):
     )
 
 
-class ListVarModel(BaseModel):
+class ListVarModel(AdataModel):
     """ListVarModel"""    
     pass
 
-class ListObsModel(BaseModel):
+class ListObsModel(AdataModel):
     """ListObsModel"""    
     pass    
 
-class VarNamesModel(BaseModel):
+class VarNamesModel(AdataModel):
     """ListObsModel"""    
     var_names: List[str] = Field(
             default=None,
@@ -49,7 +48,7 @@ class VarNamesModel(BaseModel):
         )
 
 
-class ConcatAdataModel(BaseModel):
+class ConcatAdataModel(AdataModel):
     """Model for concatenating AnnData objects"""
     
     axis: Literal['obs', 0, 'var', 1] = Field(
@@ -90,7 +89,7 @@ class ConcatAdataModel(BaseModel):
     )
 
 
-class DPTIROOTModel(BaseModel):
+class DPTIROOTModel(AdataModel):
     """Input schema for setting the root cell for diffusion pseudotime."""
     diffmap_key: str = Field(
         default="X_diffmap",
@@ -104,7 +103,7 @@ class DPTIROOTModel(BaseModel):
     )
 
 
-class CelltypeMapCellTypeModel(BaseModel):
+class CelltypeMapCellTypeModel(AdataModel):
     """Input schema for mapping cluster IDs to cell type names."""
     cluster_key: str = Field(
         description="Key in adata.obs containing cluster IDs."
@@ -123,7 +122,7 @@ class CelltypeMapCellTypeModel(BaseModel):
     
 
 
-class AddLayerModel(BaseModel):
+class AddLayerModel(AdataModel):
     """Input schema for adding a layer to AnnData object."""
     layer_name: str = Field(
         description="Name of the layer to add to adata.layers."

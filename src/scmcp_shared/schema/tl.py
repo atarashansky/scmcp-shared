@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field, field_validator, ValidationInfo
+from pydantic import  Field, field_validator, ValidationInfo
 from typing import Optional, Union, List, Dict, Any, Tuple, Literal, Mapping
 
+from .base import AdataModel
 
-
-class TSNEModel(BaseModel):
+class TSNEModel(AdataModel):
     """Input schema for the t-SNE dimensionality reduction tool."""
     n_pcs: Optional[int] = Field(
         default=None,
@@ -60,7 +60,7 @@ class TSNEModel(BaseModel):
         return v.lower()
 
 
-class UMAPModel(BaseModel):
+class UMAPModel(AdataModel):
     """Input schema for the UMAP dimensionality reduction tool."""
     
     min_dist: Optional[float] = Field(
@@ -146,7 +146,7 @@ class UMAPModel(BaseModel):
         return v.lower()
 
 
-class DrawGraphModel(BaseModel):
+class DrawGraphModel(AdataModel):
     """Input schema for the force-directed graph drawing tool."""
     
     layout: str = Field(
@@ -200,7 +200,7 @@ class DrawGraphModel(BaseModel):
         return v
 
 
-class DiffMapModel(BaseModel):
+class DiffMapModel(AdataModel):
     """Input schema for the Diffusion Maps dimensionality reduction tool."""
     
     n_comps: int = Field(
@@ -230,7 +230,7 @@ class DiffMapModel(BaseModel):
         return v
 
 
-class EmbeddingDensityModel(BaseModel):
+class EmbeddingDensityModel(AdataModel):
     """Input schema for the embedding density calculation tool."""
     
     basis: str = Field(
@@ -258,7 +258,7 @@ class EmbeddingDensityModel(BaseModel):
         return v
 
 
-class LeidenModel(BaseModel):
+class LeidenModel(AdataModel):
     """Input schema for the Leiden clustering algorithm."""
     
     resolution: Optional[float] = Field(
@@ -330,7 +330,7 @@ class LeidenModel(BaseModel):
         return v
 
 
-class LouvainModel(BaseModel):
+class LouvainModel(AdataModel):
     """Input schema for the Louvain clustering algorithm."""
     
     resolution: Optional[float] = Field(
@@ -402,7 +402,7 @@ class LouvainModel(BaseModel):
         return v
 
 
-class DendrogramModel(BaseModel):
+class DendrogramModel(AdataModel):
     """Input schema for the hierarchical clustering dendrogram tool."""
     
     groupby: str = Field(
@@ -467,7 +467,7 @@ class DendrogramModel(BaseModel):
         return v
 
 
-class DPTModel(BaseModel):
+class DPTModel(AdataModel):
     """Input schema for the Diffusion Pseudotime (DPT) tool."""
     
     n_dcs: int = Field(
@@ -516,7 +516,7 @@ class DPTModel(BaseModel):
             raise ValueError("min_group_size must be between 0 and 1")
         return v
 
-class PAGAModel(BaseModel):
+class PAGAModel(AdataModel):
     """Input schema for the Partition-based Graph Abstraction (PAGA) tool."""
     
     groups: Optional[str] = Field(
@@ -544,7 +544,7 @@ class PAGAModel(BaseModel):
         return v
 
 
-class IngestModel(BaseModel):
+class IngestModel(AdataModel):
     """Input schema for the ingest tool that maps labels and embeddings from reference data to new data."""
     
     obs: Optional[Union[str, List[str]]] = Field(
@@ -593,7 +593,7 @@ class IngestModel(BaseModel):
         return v.lower()
 
 
-class RankGenesGroupsModel(BaseModel):
+class RankGenesGroupsModel(AdataModel):
     """Input schema for the rank_genes_groups tool."""
     
     groupby: str = Field(
@@ -675,7 +675,7 @@ class RankGenesGroupsModel(BaseModel):
         return v
 
 
-class FilterRankGenesGroupsModel(BaseModel):
+class FilterRankGenesGroupsModel(AdataModel):
     """Input schema for filtering ranked genes groups."""
     
     key: Optional[str] = Field(
@@ -738,7 +738,7 @@ class FilterRankGenesGroupsModel(BaseModel):
         return v
 
 
-class MarkerGeneOverlapModel(BaseModel):
+class MarkerGeneOverlapModel(AdataModel):
     """Input schema for the marker gene overlap tool."""
     
     key: str = Field(
@@ -809,7 +809,7 @@ class MarkerGeneOverlapModel(BaseModel):
         return v
 
 
-class ScoreGenesModel(BaseModel):
+class ScoreGenesModel(AdataModel):
     """Input schema for the score_genes tool that calculates gene scores based on average expression."""
     
     ctrl_size: int = Field(
@@ -852,7 +852,7 @@ class ScoreGenesModel(BaseModel):
         return v
 
 
-class ScoreGenesCellCycleModel(BaseModel):
+class ScoreGenesCellCycleModel(AdataModel):
     """Input schema for the score_genes_cell_cycle tool that scores cell cycle genes."""
     
     s_genes: List[str] = Field(
@@ -900,3 +900,54 @@ class ScoreGenesCellCycleModel(BaseModel):
         return v
 
 
+
+
+class PCAModel(AdataModel):
+    """Input schema for the PCA preprocessing tool."""
+    
+    n_comps: Optional[int] = Field(
+        default=None,
+        description="Number of principal components to compute. Defaults to 50 or 1 - minimum dimension size.",
+        gt=0
+    )
+    
+    layer: Optional[str] = Field(
+        default=None,
+        description="If provided, which element of layers to use for PCA."
+    )
+    
+    zero_center: Optional[bool] = Field(
+        default=True,
+        description="If True, compute standard PCA from covariance matrix."
+    )
+    
+    svd_solver: Optional[Literal["arpack", "randomized", "auto", "lobpcg", "tsqr"]] = Field(
+        default=None,
+        description="SVD solver to use."
+    )
+    mask_var: Optional[Union[str, bool]] = Field(
+        default=None,
+        description="Boolean mask or string referring to var column for subsetting genes."
+    )
+    # dtype: str = Field(
+    #     default="float32",
+    #     description="Numpy data type string for the result."
+    # )
+    chunked: bool = Field(
+        default=False,
+        description="If True, perform an incremental PCA on segments."
+    )
+    
+    chunk_size: Optional[int] = Field(
+        default=None,
+        description="Number of observations to include in each chunk.",
+        gt=0
+    )
+    
+    @field_validator('n_comps', 'chunk_size')
+    def validate_positive_integers(cls, v: Optional[int]) -> Optional[int]:
+        """Validate positive integers"""
+        if v is not None and v <= 0:
+            raise ValueError("must be a positive integer")
+        return v
+    

@@ -7,7 +7,7 @@ from pydantic import (
     model_validator,
     BaseModel
 )
-
+from .base import AdataModel
 
 # 创建 Mixin 类处理特定功能
 class LegendMixin:
@@ -73,7 +73,7 @@ class FigureSizeMixin:
 
 
 # 基础可视化模型，包含所有可视化工具共享的字段
-class BaseVisualizationModel(BaseModel, LegendMixin, ColorMappingMixin, FigureSizeMixin):
+class BaseVisualizationModel(AdataModel, LegendMixin, ColorMappingMixin, FigureSizeMixin):
     """基础可视化模型，包含所有可视化工具共享的字段"""    
     pass
 
@@ -632,7 +632,7 @@ class RankGenesGroupsModel(BaseVisualizationModel):
 
 
 # 重构 ClusterMapModel
-class ClusterMapModel(BaseModel):
+class ClusterMapModel(AdataModel):
     """Input schema for the clustermap plotting tool."""
 
     obs_keys: Optional[str] = Field(
