@@ -9,12 +9,13 @@ def get_env(key):
     return os.environ.get(f"SCMCP_{key.upper()}")
 
  
-def filter_args(request, func):
-    # sometime,it is a bit redundant, but I think it adds robustness in case the function parameters change
+def filter_args(request, func, **extra_kwargs):
     kwargs = request.model_dump()
     args = request.model_fields_set
     parameters = inspect.signature(func).parameters
+    extra_kwargs = {k: extra_kwargs[k] for k in extra_kwargs if k in parameters}
     func_kwargs = {k: kwargs.get(k) for k in args if k in parameters}
+    func_kwargs.update(extra_kwargs)
     return func_kwargs
 
 
@@ -56,25 +57,44 @@ def add_op_log(adata, func, kwargs):
 
 
 
-def savefig(fig, file):
+def savefig(axes, file):
+    from matplotlib.axes import Axes
+
     try:
         file_path = Path(file)
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        if hasattr(fig, 'figure'):  # if Axes
-            fig.figure.savefig(file_path)
-        elif hasattr(fig, 'save'):  # for plotnine.ggplot.ggplot
-            fig.save(file_path)
-        else:  # if Figure 
-            fig.savefig(file_path)
+        if isinstance(axes, list):
+            if isinstance(axes[0], Axes):
+                axes[0].figure.savefig(file_path)
+        elif isinstance(axes, dict):
+            ax = list(axes.values())[0]
+            if isinstance(ax, Axes):
+                ax.figure.savefig(file_path)
+        elif isinstance(axes, Axes):
+            axes.figure.savefig(file_path)
+        elif hasattr(axes, 'savefig'):  # if Figure 
+            axes.savefig(file_path)
+        elif hasattr(axes, 'save'):  # for plotnine.ggplot.ggplot
+            axes.save(file_path)
+        else:
+            raise ValueError(f"axes must be a Axes or plotnine object, but got {type(axes)}")
         return file_path
     except Exception as e:
         raise e
 
 
-def set_fig_path(func, fig=None, **kwargs):
-    "maybe I need to save figure by myself, instead of using scanpy save function..."
-    fig_dir = Path(os.getcwd()) / "figures"
+def set_fig_path(axes, func=None, **kwargs):
+    if hasattr(func, "func") and hasattr(func.func, "__name__"):
+        # For partial functions, use the original function name
+        func_name = func.func.__name__
+    elif hasattr(func, "__name__"):
+        func_name = func.__name__
+    elif hasattr(func, "__class__"):
+        func_name = func.__class__.__name__
+    else:
+        func_name = str(func)
 
+    fig_dir = Path(os.getcwd()) / "figures"
     kwargs.pop("save", None)
     kwargs.pop("show", None)
     args = []
@@ -84,40 +104,13 @@ def set_fig_path(func, fig=None, **kwargs):
         else:
             args.append(f"{k}-{v}")
     args_str = "_".join(args)
-    if func == "rank_genes_groups_dotplot":
-        old_path = fig_dir / 'dotplot_.png'
-        fig_path = fig_dir / f"{func}_{args_str}.png"
-    elif func in ["scatter", "embedding"]:
-        if "basis" in kwargs and kwargs['basis'] is not None:
-            old_path = fig_dir / f"{kwargs['basis']}.png"
-            fig_path = fig_dir / f"{func}_{args_str}.png"
-        else:
-            old_path = fig_dir / f"{func}.png"
-            fig_path = fig_dir / f"{func}_{args_str}.png"
-    elif func == "highly_variable_genes":        
-        old_path = fig_dir / 'filter_genes_dispersion.png'
-        fig_path = fig_dir / f"{func}_{args_str}.png"
-    elif func == "scvelo_projection":
-        old_path = fig_dir / f"scvelo_{kwargs['kernel']}.png"
-        fig_path = fig_dir / f"{func}_{args_str}.png"
-    else:
-        if (fig_dir / f"{func}_.png").is_file():
-            old_path = fig_dir / f"{func}_.png"
-        else:
-            old_path = fig_dir / f"{func}.png"
-        fig_path = fig_dir / f"{func}_{args_str}.png"
+    fig_path = fig_dir / f"{func_name}_{args_str}.png"
     try:
-        if fig is not None:
-            savefig(fig, fig_path)
-        else:
-            os.rename(old_path, fig_path)
-        return fig_path
-    except FileNotFoundError:
-        print(f"The file {old_path} does not exist")
-    except FileExistsError:
-        print(f"The file {fig_path} already exists")
+        savefig(axes, fig_path)
     except PermissionError:
-        print("You don't have permission to rename this file")
+        raise PermissionError("You don't have permission to rename this file")
+    except Exception as e:
+        raise e
     transport = get_env("TRANSPORT") 
     if transport == "stdio":
         return fig_path
@@ -135,7 +128,6 @@ async def get_figure(request):
     figure_name = request.path_params["figure_name"]
     figure_path = f"./figures/{figure_name}"
     
-    # 检查文件是否存在
     if not os.path.isfile(figure_path):
         return Response(content={"error": "figure not found"}, media_type="application/json")
     
@@ -175,7 +167,6 @@ async def get_figure(request):
     figure_name = request.path_params["figure_name"]
     figure_path = f"./figures/{figure_name}"
     
-    # 检查文件是否存在
     if not os.path.isfile(figure_path):
         return Response(content={"error": "figure not found"}, media_type="application/json")
     
@@ -198,3 +189,21 @@ def generate_msg(request, adata, ads):
     sampleid = kwargs.get("sampleid")
     dtype = kwargs.get("dtype", "exp")
     return {"sampleid": sampleid or ads.active_id, "dtype": dtype, "adata": adata}
+
+
+def sc_like_plot(plot_func, adata, request, **kwargs):
+    func_kwargs = filter_args(request, plot_func, show=False, save=False)
+    axes = plot_func(adata, **func_kwargs)
+    fig_path = set_fig_path(axes, plot_func, **func_kwargs)
+    add_op_log(adata, plot_func, func_kwargs)
+    return fig_path
+
+
+async def filter_tools(mcp, include_tools=None, exclude_tools=None):
+    tools = await mcp.get_tools()
+    for tool in tools:
+        if exclude_tools and tool in exclude_tools:
+            mcp.remove_tool(tool)
+        if include_tools and tool not in include_tools:
+            mcp.remove_tool(tool)
+    return mcp
