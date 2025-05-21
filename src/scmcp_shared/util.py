@@ -135,6 +135,11 @@ async def get_figure(request):
     return FileResponse(figure_path)
 
 
+def add_figure_route(server):
+    from starlette.routing import Route
+    server._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]
+
+
 async def forward_request(func, request, **kwargs):
     from fastmcp import Client
     forward_url = get_env("FORWARD")
@@ -168,21 +173,6 @@ def obsm2adata(adata, obsm_key):
         raise ValueError(f"key {obsm_key} not found in adata.obsm")
     else:
         return AnnData(adata.obsm[obsm_key], obs=adata.obs, obsm=adata.obsm)
-
-
-async def get_figure(request):
-    figure_name = request.path_params["figure_name"]
-    figure_path = f"./figures/{figure_name}"
-    
-    if not os.path.isfile(figure_path):
-        return Response(content={"error": "figure not found"}, media_type="application/json")
-    
-    return FileResponse(figure_path)
-
-
-def add_figure_route(server):
-    from starlette.routing import Route
-    server._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]
 
 
 def get_ads():
