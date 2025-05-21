@@ -3,6 +3,7 @@ import inspect
 from pathlib import Path
 import scanpy as sc
 from fastmcp import FastMCP , Context
+from fastmcp.exceptions import ToolError
 from ..schema.util import *
 from ..util import filter_args, forward_request, get_ads, generate_msg,add_op_log
 
@@ -66,13 +67,13 @@ async def mark_var(
         func_kwargs = {"var_name": var_name, "gene_class": gene_class, "pattern_type": pattern_type, "patterns": patterns}
         add_op_log(adata, "mark_var", func_kwargs)
         return res
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @ul_mcp.tool()
@@ -88,13 +89,13 @@ async def list_var(
         columns = list(adata.var.columns)
         add_op_log(adata, list_var, {})
         return columns
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @ul_mcp.tool()
 async def list_obs(
@@ -109,13 +110,13 @@ async def list_obs(
         columns = list(adata.obs.columns)
         add_op_log(adata, list_obs, {})
         return columns
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @ul_mcp.tool()
 async def check_var(
@@ -131,13 +132,13 @@ async def check_var(
         result = {v: v in adata.var_names for v in var_names}
         add_op_log(adata, check_var, {"var_names": var_names})
         return result
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @ul_mcp.tool()
 async def merge_adata(
@@ -158,13 +159,13 @@ async def merge_adata(
         add_op_log(merged_adata, ad.concat, kwargs)
         ads.adata_dic[ads.active_id] = merged_adata
         return {"status": "success", "message": "Successfully merged all AnnData objects"}
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @ul_mcp.tool()
@@ -192,13 +193,13 @@ async def set_dpt_iroot(
         add_op_log(adata, "set_dpt_iroot", func_kwargs)
         
         return {"status": "success", "message": f"Successfully set root cell for DPT using {direction} of dimension {dimension}"}
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @ul_mcp.tool()
 async def add_layer(
@@ -226,13 +227,13 @@ async def add_layer(
             "status": "success", 
             "message": f"Successfully added layer '{layer_name}' to adata.layers"
         }
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @ul_mcp.tool()
 async def check_samples():
@@ -241,10 +242,10 @@ async def check_samples():
     try:
         ads = get_ads()
         return {"sampleid": [list(ads.adata_dic[dk].keys()) for dk in ads.adata_dic.keys()]}
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)

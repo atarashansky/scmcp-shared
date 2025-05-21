@@ -1,6 +1,7 @@
 from fastmcp import FastMCP, Context
 import os
 import scanpy as sc
+from fastmcp.exceptions import ToolError
 from ..schema.tl import *
 from scmcp_shared.util import filter_args, add_op_log, forward_request, get_ads, generate_msg
 from scmcp_shared.logging_config import setup_logger
@@ -25,13 +26,13 @@ async def tsne(
         sc.tl.tsne(adata, **func_kwargs)
         add_op_log(adata, sc.tl.tsne, func_kwargs)
         return generate_msg(request, adata, ads)
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -50,13 +51,13 @@ async def umap(
         sc.tl.umap(adata, **func_kwargs)
         add_op_log(adata, sc.tl.umap, func_kwargs)
         return [generate_msg(request, adata, ads)]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def draw_graph(
@@ -74,13 +75,13 @@ async def draw_graph(
         sc.tl.draw_graph(adata, **func_kwargs)
         add_op_log(adata, sc.tl.draw_graph, func_kwargs)
         return [generate_msg(request, adata, ads)]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def diffmap(
@@ -99,11 +100,13 @@ async def diffmap(
         adata.obsm["X_diffmap"] = adata.obsm["X_diffmap"][:,1:]
         add_op_log(adata, sc.tl.diffmap, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def embedding_density(
@@ -121,11 +124,13 @@ async def embedding_density(
         sc.tl.embedding_density(adata, **func_kwargs)
         add_op_log(adata, sc.tl.embedding_density, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -144,11 +149,13 @@ async def leiden(
         sc.tl.leiden(adata, **func_kwargs)
         add_op_log(adata, sc.tl.leiden, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -167,12 +174,13 @@ async def louvain(
         sc.tl.louvain(adata, **func_kwargs)
         add_op_log(adata, sc.tl.louvain, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
-
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def dendrogram(
@@ -190,12 +198,13 @@ async def dendrogram(
         sc.tl.dendrogram(adata, **func_kwargs)
         add_op_log(adata, sc.tl.dendrogram, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
-
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def dpt(
@@ -213,11 +222,13 @@ async def dpt(
         sc.tl.dpt(adata, **func_kwargs)
         add_op_log(adata, sc.tl.dpt, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -236,11 +247,13 @@ async def paga(
         sc.tl.paga(adata, **func_kwargs)
         add_op_log(adata, sc.tl.paga, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -259,11 +272,13 @@ async def ingest(
         sc.tl.ingest(adata, **func_kwargs)
         add_op_log(adata, sc.tl.ingest, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def rank_genes_groups(
@@ -282,11 +297,13 @@ async def rank_genes_groups(
         sc.tl.rank_genes_groups(adata, **func_kwargs)
         add_op_log(adata, sc.tl.rank_genes_groups, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -305,11 +322,13 @@ async def filter_rank_genes_groups(
         sc.tl.filter_rank_genes_groups(adata, **func_kwargs)
         add_op_log(adata, sc.tl.filter_rank_genes_groups, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -328,11 +347,13 @@ async def marker_gene_overlap(
         sc.tl.marker_gene_overlap(adata, **func_kwargs)
         add_op_log(adata, sc.tl.marker_gene_overlap, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def score_genes(
@@ -350,11 +371,13 @@ async def score_genes(
         sc.tl.score_genes(adata, **func_kwargs)
         add_op_log(adata, sc.tl.score_genes, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 @tl_mcp.tool()
 async def score_genes_cell_cycle(
@@ -373,11 +396,13 @@ async def score_genes_cell_cycle(
         sc.tl.score_genes_cell_cycle(adata, **func_kwargs)
         add_op_log(adata, sc.tl.score_genes_cell_cycle, func_kwargs)
         return [generate_msg(request, adata, ads)]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 
 @tl_mcp.tool()
@@ -398,10 +423,10 @@ async def pca(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)

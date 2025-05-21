@@ -3,6 +3,7 @@ import inspect
 from pathlib import Path
 import scanpy as sc
 from fastmcp import FastMCP , Context
+from fastmcp.exceptions import ToolError
 from ..schema.io import *
 from ..util import filter_args, forward_request, get_ads, generate_msg
 
@@ -47,11 +48,13 @@ async def read(request: ReadModel):
         adata.obs_names_make_unique()
         ads.set_adata(adata, request=request)
         return generate_msg(request, adata, ads)
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @io_mcp.tool()
@@ -67,8 +70,10 @@ async def write(request: WriteModel):
         kwargs = request.model_dump()
         sc.write(kwargs["filename"], adata)
         return {"filename": kwargs["filename"], "msg": "success to save file"}
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e    
+            raise ToolError(e)

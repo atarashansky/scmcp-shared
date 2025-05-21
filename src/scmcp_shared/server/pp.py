@@ -3,6 +3,7 @@ import os
 import inspect
 import scanpy as sc
 from fastmcp import FastMCP , Context
+from fastmcp.exceptions import ToolError
 from ..schema.pp import *
 from ..util import filter_args, add_op_log, forward_request, get_ads, generate_msg
 from ..logging_config import setup_logger
@@ -51,13 +52,13 @@ async def subset_cells(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @pp_mcp.tool()
@@ -96,13 +97,13 @@ async def subset_genes(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @pp_mcp.tool()
 async def calculate_qc_metrics(
@@ -127,11 +128,13 @@ async def calculate_qc_metrics(
         return [
             generate_msg(request, adata, ads)
         ]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 
 @pp_mcp.tool()
@@ -157,13 +160,13 @@ async def log1p(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @pp_mcp.tool()
@@ -185,13 +188,13 @@ async def normalize_total(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 
@@ -217,13 +220,13 @@ async def highly_variable_genes(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 
 @pp_mcp.tool()
@@ -246,13 +249,13 @@ async def regress_out(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @pp_mcp.tool()
 async def scale(
@@ -275,13 +278,13 @@ async def scale(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @pp_mcp.tool()
 async def combat(
@@ -304,13 +307,13 @@ async def combat(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
 
 @pp_mcp.tool()
 async def scrublet(
@@ -330,11 +333,13 @@ async def scrublet(
         return [
             generate_msg(request, adata, ads)
         ]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e 
+            raise ToolError(e)
 
 @pp_mcp.tool()
 async def neighbors(
@@ -354,10 +359,10 @@ async def neighbors(
         return [
             generate_msg(request, adata, ads)
         ]
-    except KeyError as e:
-        raise e
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
