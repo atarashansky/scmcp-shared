@@ -308,6 +308,7 @@ async def pca_variance_ratio(
     request: PCAVarianceRatioModel = PCAVarianceRatioModel() 
 ):
     """Plot the PCA variance ratio to visualize explained variance."""
+    ### there is some bug, as scanpy.pl.pca_variance_ratio didn't return axis
     try:
         result = await forward_request("pl_pca_variance_ratio", request)
         if result is not None:
