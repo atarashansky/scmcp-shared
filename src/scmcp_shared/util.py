@@ -2,7 +2,7 @@ import inspect
 import os
 from pathlib import Path
 from fastmcp.server.dependencies import get_context
-
+from fastmcp.exceptions import ToolError
 
 
 def get_env(key):
@@ -50,6 +50,7 @@ def add_op_log(adata, func, kwargs):
     hash_input = f"{func_name}:{kwargs_str}"
     hash_key = hashlib.md5(hash_input.encode()).hexdigest()
     adata.uns["operation"]["op"][hash_key] = {func_name: new_kwargs}
+    adata.uns["operation"]["opid"] = list(adata.uns["operation"]["opid"])
     adata.uns["operation"]["opid"].append(hash_key)
     from .logging_config import setup_logger
     logger = setup_logger(log_file=get_env("LOG_FILE"))
@@ -151,8 +152,14 @@ async def forward_request(func, request, **kwargs):
         try:
             result = await client.call_tool(func, func_kwargs)
             return result
+        except ToolError as e:
+            raise ToolError(e)
         except Exception as e:
-            raise e
+            if hasattr(e, '__context__') and e.__context__:
+                raise Exception(f"{str(e.__context__)}")
+            else:
+                raise e
+
 
 def obsm2adata(adata, obsm_key):
     from anndata import AnnData
