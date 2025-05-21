@@ -104,7 +104,7 @@ def set_fig_path(axes, func=None, **kwargs):
             args.append(f"{k}-{'-'.join([str(i) for i in v])}")
         else:
             args.append(f"{k}-{v}")
-    args_str = "_".join(args)
+    args_str = "_".join(args).replace(" ", "")
     fig_path = fig_dir / f"{func_name}_{args_str}.png"
     try:
         savefig(axes, fig_path)
