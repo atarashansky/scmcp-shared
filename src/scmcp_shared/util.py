@@ -189,8 +189,12 @@ def generate_msg(request, adata, ads):
 
 
 def sc_like_plot(plot_func, adata, request, **kwargs):
+    from matplotlib import pyplot as plt
+
     func_kwargs = filter_args(request, plot_func, show=False, save=False)
     axes = plot_func(adata, **func_kwargs)
+    if axes is None:
+        axes = plt.gca()
     fig_path = set_fig_path(axes, plot_func, **func_kwargs)
     add_op_log(adata, plot_func, func_kwargs)
     return fig_path
