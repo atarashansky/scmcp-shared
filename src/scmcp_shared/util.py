@@ -109,7 +109,7 @@ def savefig(axes, func=None, **kwargs):
     try:
         save_fig_path(axes, fig_path)
     except PermissionError:
-        raise PermissionError("You don't have permission to rename this file")
+        raise PermissionError("You don't have permission to save figure")
     except Exception as e:
         raise e
     transport = get_env("TRANSPORT") 
