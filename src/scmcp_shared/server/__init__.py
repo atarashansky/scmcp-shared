@@ -23,9 +23,9 @@ class AdataState:
         self.cr_kernel = {}
         self.cr_estimator = {}
         
-    def get_adata(self, sampleid=None, adtype="exp", request=None):
-        if request is not None:
-            kwargs = request.model_dump()
+    def get_adata(self, sampleid=None, adtype="exp", adinfo=None):
+        if adinfo is not None:
+            kwargs = adinfo.model_dump()
             sampleid = kwargs.get("sampleid", None)
             adtype = kwargs.get("adtype", "exp")
         try:
@@ -38,9 +38,9 @@ class AdataState:
         except Exception as e:
             raise Exception(f"fuck {e} {type(e)}")
     
-    def set_adata(self, adata, sampleid=None, sdtype="exp", request=None):
-        if request is not None:
-            kwargs = request.model_dump()
+    def set_adata(self, adata, sampleid=None, sdtype="exp", adinfo=None):
+        if adinfo is not None:
+            kwargs = adinfo.model_dump()
             sampleid = kwargs.get("sampleid", None)
             sdtype = kwargs.get("adtype", "exp")
         sampleid = sampleid or self.active_id

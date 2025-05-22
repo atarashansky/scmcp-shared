@@ -5,6 +5,7 @@ import scanpy as sc
 from fastmcp import FastMCP , Context
 from fastmcp.exceptions import ToolError
 from ..schema.util import *
+from ..schema import AdataModel
 from ..util import filter_args, forward_request, get_ads, generate_msg,add_op_log
 
 
@@ -12,9 +13,12 @@ ul_mcp = FastMCP("SCMCP-Util-Server")
 
 
 @ul_mcp.tool()
-async def query_op_log(request: QueryOpLogModel = QueryOpLogModel()):
+async def query_op_log(
+    request: QueryOpLogModel = QueryOpLogModel(),
+    adinfo: AdataModel = AdataModel()
+):
     """Query the adata operation log"""
-    adata = get_ads().get_adata(request=request)
+    adata = get_ads().get_adata(adinfo=adinfo)
     op_dic = adata.uns["operation"]["op"]
     opids = adata.uns["operation"]["opid"][-n:]
     op_list = []
@@ -25,7 +29,8 @@ async def query_op_log(request: QueryOpLogModel = QueryOpLogModel()):
 
 @ul_mcp.tool()
 async def mark_var(
-    request: MarkVarModel = MarkVarModel() 
+    request: MarkVarModel = MarkVarModel(),
+    adinfo: AdataModel = AdataModel()
 ):
     """
     Determine if each gene meets specific conditions and store results in adata.var as boolean values.
@@ -33,10 +38,10 @@ async def mark_var(
     The tool should be called first when calculate quality control metrics for mitochondrion, ribosomal, harhemoglobin genes, or other qc_vars.
     """
     try:
-        result = await forward_request("ul_mark_var", request)
+        result = await forward_request("ul_mark_var", request, adinfo)
         if result is not None:
             return result
-        adata = get_ads().get_adata(request=request)
+        adata = get_ads().get_adata(adinfo=adinfo)
         var_name = request.var_name
         gene_class = request.gene_class
         pattern_type = request.pattern_type
@@ -65,7 +70,7 @@ async def mark_var(
     
         res = {var_name: adata.var[var_name].value_counts().to_dict(), "msg": f"add '{var_name}' column in adata.var"}
         func_kwargs = {"var_name": var_name, "gene_class": gene_class, "pattern_type": pattern_type, "patterns": patterns}
-        add_op_log(adata, "mark_var", func_kwargs)
+        add_op_log(adata, "mark_var", func_kwargs, adinfo)
         return res
     except ToolError as e:
         raise ToolError(e)
@@ -78,16 +83,17 @@ async def mark_var(
 
 @ul_mcp.tool()
 async def list_var(
-    request: ListVarModel = ListVarModel() 
+    request: ListVarModel = ListVarModel(),
+    adinfo: AdataModel = AdataModel()
 ):
     """List key columns in adata.var. It should be called for checking when other tools need var key column names as input."""
     try:
-        result = await forward_request("ul_list_var", request)
+        result = await forward_request("ul_list_var", request, adinfo)
         if result is not None:
             return result
-        adata = get_ads().get_adata(request=request)
+        adata = get_ads().get_adata(adinfo=adinfo)
         columns = list(adata.var.columns)
-        add_op_log(adata, list_var, {})
+        add_op_log(adata, list_var, {}, adinfo)
         return columns
     except ToolError as e:
         raise ToolError(e)
@@ -99,16 +105,17 @@ async def list_var(
 
 @ul_mcp.tool()
 async def list_obs(
-    request: ListObsModel = ListObsModel() 
+    request: ListObsModel = ListObsModel(),
+    adinfo: AdataModel = AdataModel()
 ):
     """List key columns in adata.obs. It should be called before other tools need obs key column names input."""
     try:
-        result = await forward_request("ul_list_obs", request)
+        result = await forward_request("ul_list_obs", request, adinfo)
         if result is not None:
             return result    
-        adata = get_ads().get_adata(request=request)
+        adata = get_ads().get_adata(adinfo=adinfo)
         columns = list(adata.obs.columns)
-        add_op_log(adata, list_obs, {})
+        add_op_log(adata, list_obs, {}, adinfo)
         return columns
     except ToolError as e:
         raise ToolError(e)
@@ -120,17 +127,18 @@ async def list_obs(
 
 @ul_mcp.tool()
 async def check_var(
-    request: VarNamesModel = VarNamesModel() 
+    request: VarNamesModel = VarNamesModel(),
+    adinfo: AdataModel = AdataModel()
 ):
     """Check if genes/variables exist in adata.var_names. This tool should be called before gene expression visualizations or color by genes."""
     try:
-        result = await forward_request("ul_check_var", request)
+        result = await forward_request("ul_check_var", request, adinfo)
         if result is not None:
             return result     
-        adata = get_ads().get_adata(request=request)
+        adata = get_ads().get_adata(adinfo=adinfo)
         var_names = request.var_names
         result = {v: v in adata.var_names for v in var_names}
-        add_op_log(adata, check_var, {"var_names": var_names})
+        add_op_log(adata, check_var, {"var_names": var_names}, adinfo)
         return result
     except ToolError as e:
         raise ToolError(e)
@@ -142,21 +150,22 @@ async def check_var(
 
 @ul_mcp.tool()
 async def merge_adata(
-    request: ConcatAdataModel = ConcatAdataModel() 
+    request: ConcatBaseModel = ConcatBaseModel(),
+    adinfo: AdataModel = AdataModel()
 ):
     """Merge multiple adata objects."""
      
     try:
-        result = await forward_request("ul_merge_adata", request)
+        result = await forward_request("ul_merge_adata", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
-        adata = ads.get_adata(request=request)
+        adata = ads.get_adata(adinfo=adinfo)
         kwargs = {k: v for k, v in request.model_dump().items() if v is not None}
         merged_adata = adata.concat(list(ads.adata_dic[dtype].values()), **kwargs)
         ads.adata_dic[dtype] = {}
         ads.active_id = "merged_adata"
-        add_op_log(merged_adata, ad.concat, kwargs)
+        add_op_log(merged_adata, ad.concat, kwargs, adinfo)
         ads.adata_dic[ads.active_id] = merged_adata
         return {"status": "success", "message": "Successfully merged all AnnData objects"}
     except ToolError as e:
@@ -171,14 +180,14 @@ async def merge_adata(
 @ul_mcp.tool()
 async def set_dpt_iroot(
     request: DPTIROOTModel,
-    
+    adinfo: AdataModel = AdataModel()
 ):
     """Set the iroot cell"""
     try:
-        result = await forward_request("ul_set_dpt_iroot", request)
+        result = await forward_request("ul_set_dpt_iroot", request, adinfo)
         if result is not None:
             return result     
-        adata = get_ads().get_adata(request=request)
+        adata = get_ads().get_adata(adinfo=adinfo)
         diffmap_key = request.diffmap_key
         dimension = request.dimension
         direction = request.direction
@@ -190,7 +199,7 @@ async def set_dpt_iroot(
             adata.uns["iroot"] = adata.obsm[diffmap_key][:, dimension].argmax()
         
         func_kwargs = {"diffmap_key": diffmap_key, "dimension": dimension, "direction": direction}
-        add_op_log(adata, "set_dpt_iroot", func_kwargs)
+        add_op_log(adata, "set_dpt_iroot", func_kwargs, adinfo)
         
         return {"status": "success", "message": f"Successfully set root cell for DPT using {direction} of dimension {dimension}"}
     except ToolError as e:
@@ -204,14 +213,15 @@ async def set_dpt_iroot(
 @ul_mcp.tool()
 async def add_layer(
     request: AddLayerModel,
+    adinfo: AdataModel = AdataModel()
 ):
     """Add a layer to the AnnData object.
     """
     try:
-        result = await forward_request("ul_add_layer", request)
+        result = await forward_request("ul_add_layer", request, adinfo)
         if result is not None:
             return result         
-        adata = get_ads().get_adata(request=request)
+        adata = get_ads().get_adata(adinfo=adinfo)
         layer_name = request.layer_name
         
         # Check if layer already exists
@@ -221,7 +231,7 @@ async def add_layer(
         adata.layers[layer_name] = adata.X.copy()
 
         func_kwargs = {"layer_name": layer_name}
-        add_op_log(adata, "add_layer", func_kwargs)
+        add_op_log(adata, "add_layer", func_kwargs, adinfo)
         
         return {
             "status": "success", 

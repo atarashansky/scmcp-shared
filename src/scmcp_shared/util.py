@@ -19,7 +19,7 @@ def filter_args(request, func, **extra_kwargs):
     return func_kwargs
 
 
-def add_op_log(adata, func, kwargs):
+def add_op_log(adata, func, kwargs, adinfo):
     import hashlib
     import json
     
@@ -37,7 +37,7 @@ def add_op_log(adata, func, kwargs):
         func_name = func.__class__.__name__
     else:
         func_name = str(func)
-    new_kwargs = {}
+    new_kwargs = {**adinfo.model_dump()}
     for k,v in kwargs.items():
         if isinstance(v, tuple):
             new_kwargs[k] = list(v)
@@ -140,13 +140,17 @@ def add_figure_route(server):
     server._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]
 
 
-async def forward_request(func, request, **kwargs):
+async def forward_request(func, request, adinfo, **kwargs):
     from fastmcp import Client
     forward_url = get_env("FORWARD")
     request_kwargs = request.model_dump()
     request_args = request.model_fields_set
-    func_kwargs = {"request": {k: request_kwargs.get(k) for k in request_args}}
-    func_kwargs.update({k:v for k,v in kwargs.items() if v is not None})
+    func_kwargs = {
+        "request": {k: request_kwargs.get(k) for k in request_args},
+        "adinfo": adinfo.model_dump()
+    }
+    print(func_kwargs)
+    # func_kwargs.update({k:v for k,v in kwargs.items() if v is not None})
     if not forward_url:
         return None
         
@@ -181,14 +185,11 @@ def get_ads():
     return ads
 
 
-def generate_msg(request, adata, ads):
-    kwargs = request.model_dump()
-    sampleid = kwargs.get("sampleid")
-    dtype = kwargs.get("dtype", "exp")
-    return {"sampleid": sampleid or ads.active_id, "dtype": dtype, "adata": adata}
+def generate_msg(adinfo, adata, ads):
+    return {"sampleid": adinfo.sampleid or ads.active_id, "dtype": adinfo.adtype, "adata": adata}
 
 
-def sc_like_plot(plot_func, adata, request, **kwargs):
+def sc_like_plot(plot_func, adata, request, adinfo, **kwargs):
     from matplotlib import pyplot as plt
 
     func_kwargs = filter_args(request, plot_func, show=False, save=False)
@@ -196,7 +197,7 @@ def sc_like_plot(plot_func, adata, request, **kwargs):
     if axes is None:
         axes = plt.gca()
     fig_path = set_fig_path(axes, plot_func, **func_kwargs)
-    add_op_log(adata, plot_func, func_kwargs)
+    add_op_log(adata, plot_func, func_kwargs, adinfo)
     return fig_path
 
 

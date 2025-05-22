@@ -4,6 +4,7 @@ from pathlib import Path
 import scanpy as sc
 from fastmcp import FastMCP , Context
 from fastmcp.exceptions import ToolError
+from ..schema import AdataModel
 from ..schema.io import *
 from ..util import filter_args, forward_request, get_ads, generate_msg
 
@@ -12,12 +13,15 @@ io_mcp = FastMCP("SCMCP-IO-Server")
 
 
 @io_mcp.tool()
-async def read(request: ReadModel):
+async def read(
+    request: ReadModel, 
+    adinfo: AdataModel = AdataModel()
+):
     """
     Read data from 10X directory or various file formats (h5ad, 10x, text files, etc.).
     """
     try:
-        result = await forward_request("io_read", request)
+        result = await forward_request("io_read", request, adinfo)
         if result is not None:
             return result        
         kwargs = request.model_dump()
@@ -35,19 +39,17 @@ async def read(request: ReadModel):
         else:
             raise FileNotFoundError(f"{kwargs['filename']} does not exist")
 
-        sampleid = kwargs.get("sampleid", None)
-        adtype = kwargs.get("adtype", "exp")
         ads = get_ads()
-        if sampleid is not None:
-            ads.active_id = sampleid
+        if adinfo.sampleid is not None:
+            ads.active_id = adinfo.sampleid
         else:
-            ads.active_id = f"adata{len(ads.adata_dic[adtype])}"
+            ads.active_id = f"adata{len(ads.adata_dic[adinfo.adtype])}"
             
         adata.layers["counts"] = adata.X
         adata.var_names_make_unique()
         adata.obs_names_make_unique()
-        ads.set_adata(adata, request=request)
-        return generate_msg(request, adata, ads)
+        ads.set_adata(adata, adinfo=adinfo)
+        return generate_msg(adinfo, adata, ads)
     except ToolError as e:
         raise ToolError(e)
     except Exception as e:
@@ -58,15 +60,18 @@ async def read(request: ReadModel):
 
 
 @io_mcp.tool()
-async def write(request: WriteModel):
+async def write(
+    request: WriteModel, 
+    adinfo: AdataModel = AdataModel()
+):
     """save adata into a file.
     """
     try:
-        result = await forward_request("io_write", request)
+        result = await forward_request("io_write", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
-        adata = ads.get_adata(request=request)
+        adata = ads.get_adata(adinfo=adinfo)
         kwargs = request.model_dump()
         sc.write(kwargs["filename"], adata)
         return {"filename": kwargs["filename"], "msg": "success to save file"}
