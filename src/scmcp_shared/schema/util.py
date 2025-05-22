@@ -4,13 +4,13 @@ from pydantic import (
     ValidationInfo,
     computed_field,
     field_validator,
-    model_validator,
+    model_validator,BaseModel
 )
 from typing import Optional, Union, List, Dict, Any, Callable, Collection, Literal
-from .base import AdataModel
 
 
-class MarkVarModel(AdataModel):
+
+class MarkVarModel(BaseModel):
     """Determine or mark if each gene meets specific conditions and store results in adata.var as boolean values"""
     
     var_name: str = Field(
@@ -32,15 +32,15 @@ class MarkVarModel(AdataModel):
     )
 
 
-class ListVarModel(AdataModel):
+class ListVarModel(BaseModel):
     """ListVarModel"""    
     pass
 
-class ListObsModel(AdataModel):
+class ListObsModel(BaseModel):
     """ListObsModel"""    
     pass    
 
-class VarNamesModel(AdataModel):
+class VarNamesModel(BaseModel):
     """ListObsModel"""    
     var_names: List[str] = Field(
             default=None,
@@ -48,7 +48,7 @@ class VarNamesModel(AdataModel):
         )
 
 
-class ConcatAdataModel(AdataModel):
+class ConcatBaseModel(BaseModel):
     """Model for concatenating AnnData objects"""
     
     axis: Literal['obs', 0, 'var', 1] = Field(
@@ -89,7 +89,7 @@ class ConcatAdataModel(AdataModel):
     )
 
 
-class DPTIROOTModel(AdataModel):
+class DPTIROOTModel(BaseModel):
     """Input schema for setting the root cell for diffusion pseudotime."""
     diffmap_key: str = Field(
         default="X_diffmap",
@@ -103,7 +103,7 @@ class DPTIROOTModel(AdataModel):
     )
 
 
-class CelltypeMapCellTypeModel(AdataModel):
+class CelltypeMapCellTypeModel(BaseModel):
     """Input schema for mapping cluster IDs to cell type names."""
     cluster_key: str = Field(
         description="Key in adata.obs containing cluster IDs."
@@ -122,14 +122,14 @@ class CelltypeMapCellTypeModel(AdataModel):
     
 
 
-class AddLayerModel(AdataModel):
+class AddLayerModel(BaseModel):
     """Input schema for adding a layer to AnnData object."""
     layer_name: str = Field(
         description="Name of the layer to add to adata.layers."
     )
  
 
-class QueryOpLogModel(AdataModel):
+class QueryOpLogModel(BaseModel):
     """QueryOpLogModel"""    
     n: int = Field(
         default=10,

@@ -1,13 +1,13 @@
 from pydantic import (
     Field,
     field_validator,
-    model_validator,
+    model_validator, BaseModel
 )
 from typing import Optional, Literal
-from .base import AdataModel
 
 
-class ReadModel(AdataModel):
+
+class ReadModel(BaseModel):
     """Input schema for the read tool."""
     filename: str = Field(
         ...,
@@ -86,7 +86,7 @@ class ReadModel(AdataModel):
         return v
 
 
-class WriteModel(AdataModel):
+class WriteModel(BaseModel):
     """Input schema for the write tool."""
     filename: str = Field(
         description="Path to save the file. If no extension is provided, the default format will be used."

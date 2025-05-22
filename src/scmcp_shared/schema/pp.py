@@ -3,15 +3,15 @@ from pydantic import (
     ValidationInfo,
     computed_field,
     field_validator,
-    model_validator,
+    model_validator,BaseModel
 )
-from .base import AdataModel
+
 from typing import Optional, Union, List, Dict, Any
 from typing import Literal
 import numpy as np
 
 
-class FilterCells(AdataModel):
+class FilterCells(BaseModel):
     """Input schema for the filter_cells preprocessing tool."""
     
     min_counts: Optional[int] = Field(
@@ -42,7 +42,7 @@ class FilterCells(AdataModel):
         return v
 
 
-class FilterGenes(AdataModel):
+class FilterGenes(BaseModel):
     """Input schema for the filter_genes preprocessing tool."""
     
     min_counts: Optional[int] = Field(
@@ -73,7 +73,7 @@ class FilterGenes(AdataModel):
         return v
 
 
-class SubsetCellModel(AdataModel):
+class SubsetCellModel(BaseModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
     obs_key: Optional[str] = Field(
         default=None,
@@ -109,7 +109,7 @@ class SubsetCellModel(AdataModel):
     )
 
 
-class SubsetGeneModel(AdataModel):
+class SubsetGeneModel(BaseModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
     min_counts: Optional[int] = Field(
         default=None,
@@ -145,7 +145,7 @@ class SubsetGeneModel(AdataModel):
     )
 
 
-class CalculateQCMetrics(AdataModel):
+class CalculateQCMetrics(BaseModel):
     """Input schema for the calculate_qc_metrics preprocessing tool."""
     
     expr_type: str = Field(
@@ -196,7 +196,7 @@ class CalculateQCMetrics(AdataModel):
     
 
 
-class Log1PModel(AdataModel):
+class Log1PModel(BaseModel):
     """Input schema for the log1p preprocessing tool."""
     
     base: Optional[Union[int, float]] = Field(
@@ -233,7 +233,7 @@ class Log1PModel(AdataModel):
 
 
 
-class HighlyVariableGenesModel(AdataModel):
+class HighlyVariableGenesModel(BaseModel):
     """Input schema for the highly_variable_genes preprocessing tool."""
     
     layer: Optional[str] = Field(
@@ -307,7 +307,7 @@ class HighlyVariableGenesModel(AdataModel):
         return v
 
 
-class RegressOutModel(AdataModel):
+class RegressOutModel(BaseModel):
     """Input schema for the regress_out preprocessing tool."""
     
     keys: Union[str, List[str]] = Field(
@@ -340,7 +340,7 @@ class RegressOutModel(AdataModel):
         raise ValueError("keys must be a string or list of strings")
 
 
-class ScaleModel(AdataModel):
+class ScaleModel(BaseModel):
     """Input schema for the scale preprocessing tool."""
     
     zero_center: bool = Field(
@@ -376,7 +376,7 @@ class ScaleModel(AdataModel):
         return v
 
 
-class CombatModel(AdataModel):
+class CombatModel(BaseModel):
     """Input schema for the combat batch effect correction tool."""
     
     key: str = Field(
@@ -405,7 +405,7 @@ class CombatModel(AdataModel):
         return v
 
 
-class ScrubletModel(AdataModel):
+class ScrubletModel(BaseModel):
     """Input schema for the scrublet doublet prediction tool."""
     
     adata_sim: Optional[str] = Field(
@@ -511,7 +511,7 @@ class ScrubletModel(AdataModel):
         return v.lower()
 
 
-class NeighborsModel(AdataModel):
+class NeighborsModel(BaseModel):
     """Input schema for the neighbors graph construction tool."""
     
     n_neighbors: int = Field(
@@ -589,7 +589,7 @@ class NeighborsModel(AdataModel):
         return v
 
 
-class NormalizeTotalModel(AdataModel):
+class NormalizeTotalModel(BaseModel):
     """Input schema for the normalize_total preprocessing tool."""
     
     target_sum: Optional[float] = Field(

@@ -1,9 +1,8 @@
-from pydantic import  Field, field_validator, ValidationInfo
+from pydantic import  Field, field_validator, ValidationInfo, BaseModel
 from typing import Optional, Union, List, Dict, Any, Tuple, Literal, Mapping
 
-from .base import AdataModel
 
-class TSNEModel(AdataModel):
+class TSNEModel(BaseModel):
     """Input schema for the t-SNE dimensionality reduction tool."""
     n_pcs: Optional[int] = Field(
         default=None,
@@ -60,7 +59,7 @@ class TSNEModel(AdataModel):
         return v.lower()
 
 
-class UMAPModel(AdataModel):
+class UMAPModel(BaseModel):
     """Input schema for the UMAP dimensionality reduction tool."""
     
     min_dist: Optional[float] = Field(
@@ -146,7 +145,7 @@ class UMAPModel(AdataModel):
         return v.lower()
 
 
-class DrawGraphModel(AdataModel):
+class DrawGraphModel(BaseModel):
     """Input schema for the force-directed graph drawing tool."""
     
     layout: str = Field(
@@ -200,7 +199,7 @@ class DrawGraphModel(AdataModel):
         return v
 
 
-class DiffMapModel(AdataModel):
+class DiffMapModel(BaseModel):
     """Input schema for the Diffusion Maps dimensionality reduction tool."""
     
     n_comps: int = Field(
@@ -230,7 +229,7 @@ class DiffMapModel(AdataModel):
         return v
 
 
-class EmbeddingDensityModel(AdataModel):
+class EmbeddingDensityModel(BaseModel):
     """Input schema for the embedding density calculation tool."""
     
     basis: str = Field(
@@ -258,7 +257,7 @@ class EmbeddingDensityModel(AdataModel):
         return v
 
 
-class LeidenModel(AdataModel):
+class LeidenModel(BaseModel):
     """Input schema for the Leiden clustering algorithm."""
     
     resolution: Optional[float] = Field(
@@ -330,7 +329,7 @@ class LeidenModel(AdataModel):
         return v
 
 
-class LouvainModel(AdataModel):
+class LouvainModel(BaseModel):
     """Input schema for the Louvain clustering algorithm."""
     
     resolution: Optional[float] = Field(
@@ -402,7 +401,7 @@ class LouvainModel(AdataModel):
         return v
 
 
-class DendrogramModel(AdataModel):
+class DendrogramModel(BaseModel):
     """Input schema for the hierarchical clustering dendrogram tool."""
     
     groupby: str = Field(
@@ -467,7 +466,7 @@ class DendrogramModel(AdataModel):
         return v
 
 
-class DPTModel(AdataModel):
+class DPTModel(BaseModel):
     """Input schema for the Diffusion Pseudotime (DPT) tool."""
     
     n_dcs: int = Field(
@@ -516,7 +515,7 @@ class DPTModel(AdataModel):
             raise ValueError("min_group_size must be between 0 and 1")
         return v
 
-class PAGAModel(AdataModel):
+class PAGAModel(BaseModel):
     """Input schema for the Partition-based Graph Abstraction (PAGA) tool."""
     
     groups: Optional[str] = Field(
@@ -544,7 +543,7 @@ class PAGAModel(AdataModel):
         return v
 
 
-class IngestModel(AdataModel):
+class IngestModel(BaseModel):
     """Input schema for the ingest tool that maps labels and embeddings from reference data to new data."""
     
     obs: Optional[Union[str, List[str]]] = Field(
@@ -593,7 +592,7 @@ class IngestModel(AdataModel):
         return v.lower()
 
 
-class RankGenesGroupsModel(AdataModel):
+class RankGenesGroupsModel(BaseModel):
     """Input schema for the rank_genes_groups tool."""
     
     groupby: str = Field(
@@ -675,7 +674,7 @@ class RankGenesGroupsModel(AdataModel):
         return v
 
 
-class FilterRankGenesGroupsModel(AdataModel):
+class FilterRankGenesGroupsModel(BaseModel):
     """Input schema for filtering ranked genes groups."""
     
     key: Optional[str] = Field(
@@ -738,7 +737,7 @@ class FilterRankGenesGroupsModel(AdataModel):
         return v
 
 
-class MarkerGeneOverlapModel(AdataModel):
+class MarkerGeneOverlapModel(BaseModel):
     """Input schema for the marker gene overlap tool."""
     
     key: str = Field(
@@ -809,7 +808,7 @@ class MarkerGeneOverlapModel(AdataModel):
         return v
 
 
-class ScoreGenesModel(AdataModel):
+class ScoreGenesModel(BaseModel):
     """Input schema for the score_genes tool that calculates gene scores based on average expression."""
     
     ctrl_size: int = Field(
@@ -852,7 +851,7 @@ class ScoreGenesModel(AdataModel):
         return v
 
 
-class ScoreGenesCellCycleModel(AdataModel):
+class ScoreGenesCellCycleModel(BaseModel):
     """Input schema for the score_genes_cell_cycle tool that scores cell cycle genes."""
     
     s_genes: List[str] = Field(
@@ -902,7 +901,7 @@ class ScoreGenesCellCycleModel(AdataModel):
 
 
 
-class PCAModel(AdataModel):
+class PCAModel(BaseModel):
     """Input schema for the PCA preprocessing tool."""
     
     n_comps: Optional[int] = Field(
