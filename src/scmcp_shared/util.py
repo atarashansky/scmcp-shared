@@ -58,7 +58,7 @@ def add_op_log(adata, func, kwargs, adinfo):
 
 
 
-def savefig(axes, file):
+def save_fig_path(axes, file):
     from matplotlib.axes import Axes
 
     try:
@@ -84,7 +84,7 @@ def savefig(axes, file):
         raise e
 
 
-def set_fig_path(axes, func=None, **kwargs):
+def savefig(axes, func=None, **kwargs):
     if hasattr(func, "func") and hasattr(func.func, "__name__"):
         # For partial functions, use the original function name
         func_name = func.func.__name__
@@ -107,7 +107,7 @@ def set_fig_path(axes, func=None, **kwargs):
     args_str = "_".join(args).replace(" ", "")
     fig_path = fig_dir / f"{func_name}_{args_str}.png"
     try:
-        savefig(axes, fig_path)
+        save_fig_path(axes, fig_path)
     except PermissionError:
         raise PermissionError("You don't have permission to rename this file")
     except Exception as e:
@@ -196,7 +196,7 @@ def sc_like_plot(plot_func, adata, request, adinfo, **kwargs):
     axes = plot_func(adata, **func_kwargs)
     if axes is None:
         axes = plt.gca()
-    fig_path = set_fig_path(axes, plot_func, **func_kwargs)
+    fig_path = savefig(axes, plot_func, **func_kwargs)
     add_op_log(adata, plot_func, func_kwargs, adinfo)
     return fig_path
 
