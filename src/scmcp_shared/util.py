@@ -149,8 +149,6 @@ async def forward_request(func, request, adinfo, **kwargs):
         "request": {k: request_kwargs.get(k) for k in request_args},
         "adinfo": adinfo.model_dump()
     }
-    print(func_kwargs)
-    # func_kwargs.update({k:v for k,v in kwargs.items() if v is not None})
     if not forward_url:
         return None
         
