@@ -20,7 +20,7 @@ async def query_op_log(
     """Query the adata operation log"""
     adata = get_ads().get_adata(adinfo=adinfo)
     op_dic = adata.uns["operation"]["op"]
-    opids = adata.uns["operation"]["opid"][-n:]
+    opids = adata.uns["operation"]["opid"][-request.n:]
     op_list = []
     for opid in opids:
         op_list.append(op_dic[opid])
