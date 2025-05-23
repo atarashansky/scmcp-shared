@@ -24,9 +24,8 @@ async def pca(
 ):
     """Scatter plot in PCA coordinates. default figure for PCA plot"""
     try:
-        result = await forward_request("pl_pca", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_pca", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.pca, adata, request, adinfo)
         return {"figpath": fig_path}
@@ -45,9 +44,8 @@ async def diffmap(
 ):
     """Plot diffusion map embedding of cells."""
     try:
-        result = await forward_request("pl_diffmap", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_diffmap", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.diffmap, adata, request, adinfo)
         return {"figpath": fig_path}
@@ -66,9 +64,8 @@ async def violin(
 ):
     """Plot violin plot of one or more variables."""
     try:
-        result = await forward_request("pl_violin", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_violin", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.violin, adata, request, adinfo)
         return {"figpath": fig_path}
@@ -90,9 +87,8 @@ async def stacked_violin(
 ):
     """Plot stacked violin plots. Makes a compact image composed of individual violin plots stacked on top of each other."""
     try:
-        result = await forward_request("pl_stacked_violin", request, adinfo)
-        if result is not None:
-            return result           
+        if (res := await forward_request("pl_stacked_violin", request, adinfo)) is not None:
+            return res           
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.stacked_violin, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -112,9 +108,8 @@ async def heatmap(
 ):
     """Heatmap of the expression values of genes."""
     try:
-        result = await forward_request("pl_heatmap", request, adinfo)
-        if result is not None:
-            return result           
+        if (res := await forward_request("pl_heatmap", request, adinfo)) is not None:
+            return res   
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.heatmap, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -134,9 +129,8 @@ async def dotplot(
 ):
     """Plot dot plot of expression values per gene for each group."""
     try:
-        result = await forward_request("pl_dotplot", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_dotplot", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.dotplot, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -155,9 +149,8 @@ async def matrixplot(
 ):
     """matrixplot, Create a heatmap of the mean expression values per group of each var_names."""
     try:
-        result = await forward_request("pl_matrixplot", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_matrixplot", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.matrixplot, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -177,9 +170,8 @@ async def tracksplot(
 ):
     """tracksplot, compact plot of expression of a list of genes."""
     try:
-        result = await forward_request("pl_tracksplot", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_tracksplot", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.tracksplot, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -198,9 +190,8 @@ async def scatter(
 ):
     """Plot a scatter plot of two variables, Scatter plot along observations or variables axes."""
     try:
-        result = await forward_request("pl_scatter", request, adinfo)
-        if result is not None:
-            return result    
+        if (res := await forward_request("pl_scatter", request, adinfo)) is not None:
+            return res   
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.scatter, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -219,9 +210,8 @@ async def embedding(
 ):
     """Scatter plot for user specified embedding basis (e.g. umap, tsne, etc)."""
     try:
-        result = await forward_request("pl_embedding", request, adinfo)
-        if result is not None:
-            return result       
+        if (res := await forward_request("pl_embedding", request, adinfo)) is not None:
+            return res   
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.embedding, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -241,9 +231,8 @@ async def embedding_density(
 ):
     """Plot the density of cells in an embedding."""
     try:
-        result = await forward_request("pl_embedding_density", request, adinfo)
-        if result is not None:
-            return result          
+        if (res := await forward_request("pl_embedding_density", request, adinfo)) is not None:
+            return res   
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.embedding_density, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -262,9 +251,8 @@ async def rank_genes_groups(
 ):
     """Plot ranking of genes based on differential expression."""
     try:
-        result = await forward_request("pl_rank_genes_groups", request, adinfo)
-        if result is not None:
-            return result         
+        if (res := await forward_request("pl_rank_genes_groups", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.rank_genes_groups, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -285,9 +273,8 @@ async def rank_genes_groups_dotplot(
     """Plot ranking of genes(DEGs) using dotplot visualization. Defualt plot DEGs for rank_genes_groups tool"""
     from fastmcp.exceptions import ClientError 
     try:
-        result = await forward_request("pl_rank_genes_groups_dotplot", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_rank_genes_groups_dotplot", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.rank_genes_groups_dotplot, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -307,9 +294,8 @@ async def clustermap(
 ):
     """Plot hierarchical clustering of cells and genes."""
     try:
-        result = await forward_request("pl_clustermap", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_clustermap", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.clustermap, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -328,9 +314,8 @@ async def highly_variable_genes(
 ):
     """plot highly variable genes; Plot dispersions or normalized variance versus means for genes."""
     try:
-        result = await forward_request("pl_highly_variable_genes", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_highly_variable_genes", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.highly_variable_genes, adata, request,adinfo)
         return {"figpath": fig_path}
@@ -351,9 +336,8 @@ async def pca_variance_ratio(
     """Plot the PCA variance ratio to visualize explained variance."""
     ### there is some bug, as scanpy.pl.pca_variance_ratio didn't return axis
     try:
-        result = await forward_request("pl_pca_variance_ratio", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("pl_pca_variance_ratio", request, adinfo)) is not None:
+            return res
         adata = get_ads().get_adata(adinfo=adinfo)
         fig_path = sc_like_plot(sc.pl.pca_variance_ratio, adata, request,adinfo)
         return {"figpath": fig_path}

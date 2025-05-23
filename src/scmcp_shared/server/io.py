@@ -21,9 +21,8 @@ async def read(
     Read data from 10X directory or various file formats (h5ad, 10x, text files, etc.).
     """
     try:
-        result = await forward_request("io_read", request, adinfo)
-        if result is not None:
-            return result        
+        if (res := await forward_request("io_read", request, adinfo)) is not None:
+            return res        
         kwargs = request.model_dump()
 
         file = Path(kwargs.get("filename", None))
@@ -67,9 +66,8 @@ async def write(
     """save adata into a file.
     """
     try:
-        result = await forward_request("io_write", request, adinfo)
-        if result is not None:
-            return result
+        if (res := await forward_request("io_write", request, adinfo)) is not None:
+            return res   
         ads = get_ads()
         adata = ads.get_adata(adinfo=adinfo)
         kwargs = request.model_dump()
