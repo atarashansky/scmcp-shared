@@ -1,5 +1,6 @@
 import inspect
 import os
+from enum import Enum
 from pathlib import Path
 from fastmcp.server.dependencies import get_context
 from fastmcp.exceptions import ToolError
@@ -207,3 +208,16 @@ async def filter_tools(mcp, include_tools=None, exclude_tools=None):
         if include_tools and tool not in include_tools:
             mcp.remove_tool(tool)
     return mcp
+
+
+class Transport(str, Enum):
+    STDIO = "stdio"
+    SSE = "sse"
+    SHTTP = "shttp"
+
+    @property
+    def transport_value(self) -> str:
+        """Get the actual transport value to use."""
+        if self == Transport.SHTTP:
+            return "streamable-http"
+        return self.value
