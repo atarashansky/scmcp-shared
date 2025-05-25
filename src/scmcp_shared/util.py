@@ -209,15 +209,21 @@ async def filter_tools(mcp, include_tools=None, exclude_tools=None):
             mcp.remove_tool(tool)
     return mcp
 
+ 
+def set_env(log_file, forward, transport, host, port):
+    if log_file is not None:
+        os.environ['SCMCP_LOG_FILE'] = log_file
+    if forward is not None:
+        os.environ['SCMCP_FORWARD'] = forward           
+    os.environ['SCMCP_TRANSPORT'] = transport
+    os.environ['SCMCP_HOST'] = host
+    os.environ['SCMCP_PORT'] = str(port)
 
-class Transport(str, Enum):
-    STDIO = "stdio"
-    SSE = "sse"
-    SHTTP = "shttp"
 
-    @property
-    def transport_value(self) -> str:
-        """Get the actual transport value to use."""
-        if self == Transport.SHTTP:
-            return "streamable-http"
-        return self.value
+
+def setup_mcp(mcp, sub_mcp_dic, modules=None):
+    if modules is None or modules == "all":
+        modules = sub_mcp_dic.keys()
+    for module in modules:
+        mcp.mount(module, sub_mcp_dic[module])
+    return mcp
