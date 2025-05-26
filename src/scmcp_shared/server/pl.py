@@ -7,11 +7,9 @@ from fastmcp.exceptions import ToolError
 from ..schema.pl import *
 from ..schema import AdataModel
 from pathlib import Path
-from ..logging_config import setup_logger
 from ..util import forward_request, sc_like_plot, get_ads
 
 
-logger = setup_logger()
 
 pl_mcp = FastMCP("ScanpyMCP-PL-Server")
 
