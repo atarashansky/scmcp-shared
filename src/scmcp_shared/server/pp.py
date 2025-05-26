@@ -7,8 +7,6 @@ from fastmcp.exceptions import ToolError
 from ..schema.pp import *
 from ..schema import AdataModel
 from ..util import filter_args, add_op_log, forward_request, get_ads, generate_msg
-from ..logging_config import setup_logger
-logger = setup_logger()
 
 
 pp_mcp = FastMCP("ScanpyMCP-PP-Server")
@@ -119,7 +117,7 @@ async def calculate_qc_metrics(
         result = await forward_request("pp_calculate_qc_metrics", request, adinfo)
         if result is not None:
             return result
-        logger.info(f"calculate_qc_metrics {request.model_dump()}")
+
         func_kwargs = filter_args(request, sc.pp.calculate_qc_metrics)
         ads = get_ads()
         adata = ads.get_adata(adinfo=adinfo)
@@ -222,7 +220,6 @@ async def highly_variable_genes(
             sc.pp.highly_variable_genes(adata, **func_kwargs)
             add_op_log(adata, sc.pp.highly_variable_genes, func_kwargs, adinfo)
         except Exception as e:
-            logger.error(f"Error in pp_highly_variable_genes: {str(e)}")
             raise e
         return [
             generate_msg(adinfo, adata, ads)

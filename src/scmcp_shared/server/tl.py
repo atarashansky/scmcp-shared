@@ -5,8 +5,7 @@ from fastmcp.exceptions import ToolError
 from ..schema.tl import *
 from ..schema import AdataModel
 from scmcp_shared.util import filter_args, add_op_log, forward_request, get_ads, generate_msg
-from scmcp_shared.logging_config import setup_logger
-logger = setup_logger()
+
 
 tl_mcp = FastMCP("ScanpyMCP-TL-Server")
 
