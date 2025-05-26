@@ -175,7 +175,7 @@ def obsm2adata(adata, obsm_key):
     if obsm_key not in adata.obsm_keys():
         raise ValueError(f"key {obsm_key} not found in adata.obsm")
     else:
-        return AnnData(adata.obsm[obsm_key], obs=adata.obs, obsm=adata.obsm)
+        return AnnData(adata.obsm[obsm_key], obs=adata.obs, obsm=adata.obsm, uns=adata.uns)
 
 
 def get_ads():
@@ -200,14 +200,20 @@ def sc_like_plot(plot_func, adata, request, adinfo, **kwargs):
     return fig_path
 
 
-async def filter_tools(mcp, include_tools=None, exclude_tools=None):
-    tools = await mcp.get_tools()
-    for tool in tools:
-        if exclude_tools and tool in exclude_tools:
-            mcp.remove_tool(tool)
-        if include_tools and tool not in include_tools:
-            mcp.remove_tool(tool)
-    return mcp
+def filter_tools(mcp, include_tools=None, exclude_tools=None):
+    import asyncio
+    import copy
+    mcp = copy.deepcopy(mcp)
+    async def _filter_tools(mcp, include_tools=None, exclude_tools=None):
+        tools = await mcp.get_tools()
+        for tool in tools:
+            if exclude_tools and tool in exclude_tools:
+                mcp.remove_tool(tool)
+            if include_tools and tool not in include_tools:
+                mcp.remove_tool(tool)
+        return mcp
+    return asyncio.run(_filter_tools(mcp, include_tools, exclude_tools))
+
 
  
 def set_env(log_file, forward, transport, host, port):
@@ -222,8 +228,9 @@ def set_env(log_file, forward, transport, host, port):
 
 
 def setup_mcp(mcp, sub_mcp_dic, modules=None):
+    import asyncio
     if modules is None or modules == "all":
         modules = sub_mcp_dic.keys()
     for module in modules:
-        mcp.mount(module, sub_mcp_dic[module])
+        asyncio.run(mcp.import_server(module, sub_mcp_dic[module]))
     return mcp
