@@ -300,11 +300,6 @@ class LeidenModel(BaseModel):
         description="Which package's implementation to use."
     )
     
-    clustering_args: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Any further arguments to pass to the clustering algorithm."
-    )
-    
     @field_validator('resolution')
     def validate_resolution(cls, v: float) -> float:
         """Validate resolution is positive"""
