@@ -22,10 +22,6 @@ class ReadModel(BaseModel):
         default=None,
         description="Name of sheet/table in hdf5 or Excel file."
     )
-    ext: str = Field(
-        default=None,
-        description="Extension that indicates the file type. If None, uses extension of filename."
-    )
     delimiter: str = Field(
         default=None,
         description="Delimiter that separates data within text file. If None, will split at arbitrary number of white spaces, which is different from enforcing splitting at any single white space."
