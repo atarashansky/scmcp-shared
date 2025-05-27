@@ -4,10 +4,10 @@ from collections.abc import Iterable
 from typing import Any
 
 from .io import io_mcp
-from .util import ul_mcp
-from .pl import pl_mcp
-from .pp import pp_mcp
-from .tl import tl_mcp
+from .util import ul_mcp, ScanpyUtilMCP
+from .pl import pl_mcp, ScanpyPlottingMCP
+from .pp import pp_mcp, ScanpyPreprocessingMCP
+from .tl import tl_mcp, ScanpyToolsMCP
 
 
 
