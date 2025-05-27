@@ -70,6 +70,8 @@ class MCPCLI:
 
     def run_mcp(self, log_file, forward, transport, host, port):
         set_env(log_file, forward, transport, host, port)
+        from .logging_config import setup_logger
+        setup_logger(log_file)
         if transport == "stdio":
             self.mcp.run()
         elif transport in ["sse", "shttp"]:
