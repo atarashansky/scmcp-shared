@@ -4,6 +4,8 @@ from enum import Enum
 from pathlib import Path
 from fastmcp.server.dependencies import get_context
 from fastmcp.exceptions import ToolError
+import asyncio
+import nest_asyncio
 
 
 def get_env(key):
@@ -141,7 +143,7 @@ def add_figure_route(server):
     server._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]
 
 
-async def forward_request(func, request, adinfo, **kwargs):
+async def async_forward_request(func, request, adinfo, **kwargs):
     from fastmcp import Client
     forward_url = get_env("FORWARD")
     request_kwargs = request.model_dump()
@@ -167,6 +169,28 @@ async def forward_request(func, request, adinfo, **kwargs):
                 raise Exception(f"{str(e.__context__)}")
             else:
                 raise e
+
+
+
+def forward_request(func, request, adinfo, **kwargs):
+    """Synchronous wrapper for forward_request"""
+    try:
+        # Apply nest_asyncio to allow nested event loops
+        nest_asyncio.apply()
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If we're in a running event loop, use create_task
+            async def _run():
+                return await async_forward_request(func, request, adinfo, **kwargs)
+            return loop.run_until_complete(_run())
+        else:
+            # If no event loop is running, use asyncio.run()
+            return asyncio.run(async_forward_request(func, request, adinfo, **kwargs))
+    except Exception as e:
+        if hasattr(e, '__context__') and e.__context__:
+            raise Exception(f"{str(e.__context__)}")
+        else:
+            raise e
 
 
 def obsm2adata(adata, obsm_key):
