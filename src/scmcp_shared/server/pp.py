@@ -1,383 +1,15 @@
 import os
 import inspect
 import scanpy as sc
-from fastmcp import FastMCP , Context
+from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ToolError
 from ..schema.pp import *
-from ..schema import AdataModel, AdataInfo
+from ..schema import AdataInfo
 from ..util import filter_args, add_op_log, forward_request, get_ads, generate_msg
+from .base import BaseMCP
 
 
-pp_mcp = FastMCP("ScanpyMCP-PP-Server")
-
-
-@pp_mcp.tool()
-async def subset_cells(
-    request: SubsetCellModel = SubsetCellModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """filter or subset cells based on total genes expressed counts and numbers. or values in adata.obs[obs_key]"""
-
-    try:
-        result = await forward_request("subset_cells", request, adinfo)
-        if result is not None:
-            return result
-
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-        func_kwargs = filter_args(request, sc.pp.filter_cells)
-        if func_kwargs:
-            sc.pp.filter_cells(adata, **func_kwargs)
-            add_op_log(adata, sc.pp.filter_cells, func_kwargs, adinfo)
-        # Subset based on obs (cells) criteria
-        if request.obs_key is not None:
-            if request.obs_key not in adata.obs.columns:
-                raise ValueError(f"Key '{request.obs_key}' not found in adata.obs")        
-            mask = True  # Start with all cells selected
-            if request.obs_value is not None:
-                mask = mask & (adata.obs[request.obs_key] == request.obs_value)
-            if request.obs_min is not None:
-                mask = mask & (adata.obs[request.obs_key] >= request.obs_min)        
-            if request.obs_max is not None:
-                mask = mask & (adata.obs[request.obs_key] <= request.obs_max)        
-            adata = adata[mask, :]
-            add_op_log(adata, "subset_cells", 
-                {
-                "obs_key": request.obs_key, "obs_value": request.obs_value, 
-                "obs_min": request.obs_min, "obs_max": request.obs_max
-                }, adinfo
-            )
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-
-@pp_mcp.tool()
-async def subset_genes(
-    request: SubsetGeneModel = SubsetGeneModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """filter or subset genes based on number of cells or counts, or values in adata.var[var_key] or subset highly variable genes""" 
-    try:
-        result = await forward_request("pp_subset_genes", request, adinfo)
-        if result is not None:
-            return result
-        func_kwargs = filter_args(request, sc.pp.filter_genes)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-        if func_kwargs:
-            sc.pp.filter_genes(adata, **func_kwargs)
-            add_op_log(adata, sc.pp.filter_genes, func_kwargs, adinfo)
-        if request.var_key is not None:
-            if request.var_key not in adata.var.columns:
-                raise ValueError(f"Key '{request.var_key}' not found in adata.var")
-            mask = True  # Start with all genes selected
-            if request.var_min is not None:
-                mask = mask & (adata.var[request.var_key] >= request.var_min)
-            if request.var_max is not None:
-                mask = mask & (adata.var[request.var_key] <= request.var_max)        
-            adata = adata[:, mask]
-            if request.highly_variable is not None:
-                adata = adata[:, adata.var.highly_variable]
-            add_op_log(adata, "subset_genes", 
-                {
-                "var_key": request.var_key, "var_value": request.var_value, 
-                "var_min": request.var_min, "var_max": request.var_max, "hpv":  request.highly_variable
-                }, adinfo
-            )
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-@pp_mcp.tool()
-async def calculate_qc_metrics(
-    request: CalculateQCMetrics = CalculateQCMetrics(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Calculate quality control metrics(common metrics: total counts, gene number, percentage of counts in ribosomal and mitochondrial) for AnnData."""
-
-    try:
-        result = await forward_request("pp_calculate_qc_metrics", request, adinfo)
-        if result is not None:
-            return result
-
-        func_kwargs = filter_args(request, sc.pp.calculate_qc_metrics)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo)
-        func_kwargs["inplace"] = True
-        try:
-            sc.pp.calculate_qc_metrics(adata, **func_kwargs)
-            add_op_log(adata, sc.pp.calculate_qc_metrics, func_kwargs, adinfo)
-        except KeyError as e:
-            raise KeyError(f"Cound find {e} in adata.var")
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-
-@pp_mcp.tool()
-async def log1p(
-    request: Log1PModel = Log1PModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Logarithmize the data matrix"""
-
-    try:
-        result = await forward_request("pp_log1p", request, adinfo)
-        if result is not None:
-            return result
-        func_kwargs = filter_args(request, sc.pp.log1p)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-        try:
-            sc.pp.log1p(adata, **func_kwargs)
-            adata.raw = adata.copy()
-            add_op_log(adata, sc.pp.log1p, func_kwargs, adinfo)
-        except Exception as e:
-            raise e
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-                generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-
-@pp_mcp.tool()
-async def normalize_total(
-    request: NormalizeTotalModel = NormalizeTotalModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Normalize counts per cell to the same total count"""
-
-    try:
-        result = await forward_request("pp_normalize_total", request, adinfo)
-        if result is not None:
-            return result
-        func_kwargs = filter_args(request, sc.pp.normalize_total)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-        sc.pp.normalize_total(adata, **func_kwargs)
-        add_op_log(adata, sc.pp.normalize_total, func_kwargs, adinfo)
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-
-
-@pp_mcp.tool()
-async def highly_variable_genes(
-    request: HighlyVariableGenesModel = HighlyVariableGenesModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Annotate highly variable genes"""
-
-    try:
-        result = await forward_request("pp_highly_variable_genes", request, adinfo)
-        if result is not None:
-            return result
-        try:  
-            func_kwargs = filter_args(request, sc.pp.highly_variable_genes)
-            ads = get_ads()
-            adata = ads.get_adata(adinfo=adinfo)
-            sc.pp.highly_variable_genes(adata, **func_kwargs)
-            add_op_log(adata, sc.pp.highly_variable_genes, func_kwargs, adinfo)
-        except Exception as e:
-            raise e
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-
-@pp_mcp.tool()
-async def regress_out(
-    request: RegressOutModel,
-    adinfo: AdataModel = AdataModel()
-):
-    """Regress out (mostly) unwanted sources of variation."""
-
-    try:
-        result = await forward_request("pp_regress_out", request, adinfo)
-        if result is not None:
-            return result        
-        func_kwargs = filter_args(request, sc.pp.regress_out)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-        sc.pp.regress_out(adata, **func_kwargs)
-        add_op_log(adata, sc.pp.regress_out, func_kwargs, adinfo)
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-@pp_mcp.tool()
-async def scale(
-    request: ScaleModel = ScaleModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Scale data to unit variance and zero mean"""
-
-    try:
-        result = await forward_request("pp_scale", request, adinfo)
-        if result is not None:
-            return result     
-        func_kwargs = filter_args(request, sc.pp.scale)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-
-        sc.pp.scale(adata, **func_kwargs)
-        add_op_log(adata, sc.pp.scale, func_kwargs, adinfo)
- 
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-@pp_mcp.tool()
-async def combat(
-    request: CombatModel = CombatModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """ComBat function for batch effect correction"""
-
-    try:
-        result = await forward_request("pp_combat", request, adinfo)
-        if result is not None:
-            return result        
-        func_kwargs = filter_args(request, sc.pp.combat)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo).copy()
-
-        sc.pp.combat(adata, **func_kwargs)
-        add_op_log(adata, sc.pp.combat, func_kwargs, adinfo)
-
-        ads.set_adata(adata, adinfo=adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-@pp_mcp.tool()
-async def scrublet(
-    request: ScrubletModel = ScrubletModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Predict doublets using Scrublet"""
-
-    try:
-        result = await forward_request("pp_scrublet", request, adinfo)
-        if result is not None:
-            return result          
-        func_kwargs = filter_args(request, sc.pp.scrublet)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo)
-        sc.pp.scrublet(adata, **func_kwargs)
-        add_op_log(adata, sc.pp.scrublet, func_kwargs, adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-@pp_mcp.tool()
-async def neighbors(
-    request: NeighborsModel = NeighborsModel(),
-    adinfo: AdataModel = AdataModel()
-):
-    """Compute nearest neighbors distance matrix and neighborhood graph"""
-
-    try:
-        result = await forward_request("pp_neighbors", request, adinfo)
-        if result is not None:
-            return result
-        func_kwargs = filter_args(request, sc.pp.neighbors)
-        ads = get_ads()
-        adata = ads.get_adata(adinfo=adinfo)
-        sc.pp.neighbors(adata, **func_kwargs)
-        add_op_log(adata, sc.pp.neighbors, func_kwargs, adinfo)
-        return [
-            generate_msg(adinfo, adata, ads)
-        ]
-    except ToolError as e:
-        raise ToolError(e)
-    except Exception as e:
-        if hasattr(e, '__context__') and e.__context__:
-            raise ToolError(e.__context__)
-        else:
-            raise ToolError(e)
-
-
-mcp1 = FastMCP("ScanpyMCP-PP-Server")
-
-class ScanpyPreprocessingMCP:
+class ScanpyPreprocessingMCP(BaseMCP):
     def __init__(self, include_tools: list = None, exclude_tools: list = None, AdataInfo: AdataInfo = AdataInfo):
         """
         Initialize ScanpyPreprocessingMCP with optional tool filtering.
@@ -387,43 +19,13 @@ class ScanpyPreprocessingMCP:
             exclude_tools (list, optional): List of tool names to exclude. If None, no tools are excluded.
             AdataInfo: The AdataInfo class to use for type annotations.
         """
-        self.mcp = mcp1
-        self.include_tools = include_tools
-        self.exclude_tools = exclude_tools
-        self.AdataInfo = AdataInfo
-        self._register_tools()
-
-    def _register_tools(self):
-        """Register all tool methods with the FastMCP instance based on include/exclude filters"""
-        # Get all methods of the class
-        methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        
-        # Filter methods that start with _tool_
-        tool_methods = {
-            name[6:]: method  # Remove '_tool_' prefix
-            for name, method in methods
-            if name.startswith('_tool_')
-        }
-        
-        # Filter tools based on include/exclude lists
-        if self.include_tools is not None:
-            tool_methods = {k: v for k, v in tool_methods.items() if k in self.include_tools}
-        
-        if self.exclude_tools is not None:
-            tool_methods = {k: v for k, v in tool_methods.items() if k not in self.exclude_tools}
-
-        # Register filtered tools
-        for tool_name, tool_method in tool_methods.items():
-            # Get the function returned by the tool method
-            tool_func = tool_method()
-            if tool_func is not None:
-                self.mcp.add_tool(tool_func, name=tool_name)
+        super().__init__("ScanpyMCP-PP-Server", include_tools, exclude_tools, AdataInfo)
 
     def _tool_subset_cells(self):
-        async def _subset_cells(request: SubsetCellModel, adinfo: self.AdataInfo):
+        def _subset_cells(request: SubsetCellModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """filter or subset cells based on total genes expressed counts and numbers. or values in adata.obs[obs_key]"""
             try:
-                result = await forward_request("subset_cells", request, adinfo)
+                result = forward_request("subset_cells", request, adinfo)
                 if result is not None:
                     return result
 
@@ -463,10 +65,10 @@ class ScanpyPreprocessingMCP:
         return _subset_cells
 
     def _tool_subset_genes(self):
-        async def _subset_genes(request: SubsetGeneModel, adinfo: self.AdataInfo):
+        def _subset_genes(request: SubsetGeneModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """filter or subset genes based on number of cells or counts, or values in adata.var[var_key] or subset highly variable genes"""
             try:
-                result = await forward_request("pp_subset_genes", request, adinfo)
+                result = forward_request("pp_subset_genes", request, adinfo)
                 if result is not None:
                     return result
                 func_kwargs = filter_args(request, sc.pp.filter_genes)
@@ -504,10 +106,10 @@ class ScanpyPreprocessingMCP:
         return _subset_genes
 
     def _tool_calculate_qc_metrics(self):
-        async def _calculate_qc_metrics(request: CalculateQCMetrics, adinfo: self.AdataInfo):
+        def _calculate_qc_metrics(request: CalculateQCMetrics, adinfo: self.AdataInfo=self.AdataInfo()):
             """Calculate quality control metrics(common metrics: total counts, gene number, percentage of counts in ribosomal and mitochondrial) for AnnData."""
             try:
-                result = await forward_request("pp_calculate_qc_metrics", request, adinfo)
+                result = forward_request("pp_calculate_qc_metrics", request, adinfo)
                 if result is not None:
                     return result
 
@@ -531,10 +133,10 @@ class ScanpyPreprocessingMCP:
         return _calculate_qc_metrics
 
     def _tool_log1p(self):
-        async def _log1p(request: Log1PModel, adinfo: self.AdataInfo):
+        def _log1p(request: Log1PModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Logarithmize the data matrix"""
             try:
-                result = await forward_request("pp_log1p", request, adinfo)
+                result = forward_request("pp_log1p", request, adinfo)
                 if result is not None:
                     return result
                 func_kwargs = filter_args(request, sc.pp.log1p)
@@ -558,10 +160,10 @@ class ScanpyPreprocessingMCP:
         return _log1p
 
     def _tool_normalize_total(self):
-        async def _normalize_total(request: NormalizeTotalModel, adinfo: self.AdataInfo):
+        def _normalize_total(request: NormalizeTotalModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Normalize counts per cell to the same total count"""
             try:
-                result = await forward_request("pp_normalize_total", request, adinfo)
+                result = forward_request("pp_normalize_total", request, adinfo)
                 if result is not None:
                     return result
                 func_kwargs = filter_args(request, sc.pp.normalize_total)
@@ -581,10 +183,10 @@ class ScanpyPreprocessingMCP:
         return _normalize_total
 
     def _tool_highly_variable_genes(self):
-        async def _highly_variable_genes(request: HighlyVariableGenesModel, adinfo: self.AdataInfo):
+        def _highly_variable_genes(request: HighlyVariableGenesModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Annotate highly variable genes"""
             try:
-                result = await forward_request("pp_highly_variable_genes", request, adinfo)
+                result = forward_request("pp_highly_variable_genes", request, adinfo)
                 if result is not None:
                     return result
                 try:  
@@ -606,10 +208,10 @@ class ScanpyPreprocessingMCP:
         return _highly_variable_genes
 
     def _tool_regress_out(self):
-        async def _regress_out(request: RegressOutModel, adinfo: self.AdataInfo):
+        def _regress_out(request: RegressOutModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Regress out (mostly) unwanted sources of variation."""
             try:
-                result = await forward_request("pp_regress_out", request, adinfo)
+                result = forward_request("pp_regress_out", request, adinfo)
                 if result is not None:
                     return result        
                 func_kwargs = filter_args(request, sc.pp.regress_out)
@@ -629,10 +231,10 @@ class ScanpyPreprocessingMCP:
         return _regress_out
 
     def _tool_scale(self):
-        async def _scale(request: ScaleModel, adinfo: self.AdataInfo):
+        def _scale(request: ScaleModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Scale data to unit variance and zero mean"""
             try:
-                result = await forward_request("pp_scale", request, adinfo)
+                result = forward_request("pp_scale", request, adinfo)
                 if result is not None:
                     return result     
                 func_kwargs = filter_args(request, sc.pp.scale)
@@ -654,10 +256,10 @@ class ScanpyPreprocessingMCP:
         return _scale
 
     def _tool_combat(self):
-        async def _combat(request: CombatModel, adinfo: self.AdataInfo):
+        def _combat(request: CombatModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """ComBat function for batch effect correction"""
             try:
-                result = await forward_request("pp_combat", request, adinfo)
+                result = forward_request("pp_combat", request, adinfo)
                 if result is not None:
                     return result        
                 func_kwargs = filter_args(request, sc.pp.combat)
@@ -679,10 +281,10 @@ class ScanpyPreprocessingMCP:
         return _combat
 
     def _tool_scrublet(self):
-        async def _scrublet(request: ScrubletModel, adinfo: self.AdataInfo):
+        def _scrublet(request: ScrubletModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Predict doublets using Scrublet"""
             try:
-                result = await forward_request("pp_scrublet", request, adinfo)
+                result = forward_request("pp_scrublet", request, adinfo)
                 if result is not None:
                     return result          
                 func_kwargs = filter_args(request, sc.pp.scrublet)
@@ -701,10 +303,10 @@ class ScanpyPreprocessingMCP:
         return _scrublet
 
     def _tool_neighbors(self):
-        async def _neighbors(request: NeighborsModel, adinfo: self.AdataInfo):
+        def _neighbors(request: NeighborsModel, adinfo: self.AdataInfo=self.AdataInfo()):
             """Compute nearest neighbors distance matrix and neighborhood graph"""
             try:
-                result = await forward_request("pp_neighbors", request, adinfo)
+                result = forward_request("pp_neighbors", request, adinfo)
                 if result is not None:
                     return result
                 func_kwargs = filter_args(request, sc.pp.neighbors)
