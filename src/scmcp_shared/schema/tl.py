@@ -938,6 +938,11 @@ class PCAModel(BaseModel):
         gt=0
     )
     
+    key_added: str = Field(
+        default="X_pca",
+        description="PCA embedding stored key in adata.obsm."
+    )
+    
     @field_validator('n_comps', 'chunk_size')
     def validate_positive_integers(cls, v: Optional[int]) -> Optional[int]:
         """Validate positive integers"""
