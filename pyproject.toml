@@ -12,7 +12,7 @@ dependencies = [
     "scanpy",
     "mcp>=1.8.0",
     "fastmcp>=2.3.4",
-    "pydantic",
+    "nest_asyncio",
 ]
 
 [build-system]
