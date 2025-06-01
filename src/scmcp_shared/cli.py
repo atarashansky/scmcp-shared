@@ -1,77 +1,89 @@
-import typer
-from typing import Optional, Union, Type
+import argparse
+from typing import Optional, Union, Type, Dict, Callable
 from enum import Enum
-from .util import add_figure_route, set_env,setup_mcp
-
-
-class TransportEnum(str, Enum):
-    STDIO = "stdio"
-    SSE = "sse"
-    SHTTP = "shttp"
-
-    @property
-    def transport_value(self) -> str:
-        """Get the actual transport value to use."""
-        if self == TransportEnum.SHTTP:
-            return "streamable-http"
-        return self.value
-
-
-class ModuleEnum(str, Enum):
-    """Base class for module types."""
-    ALL = "all"
-
+from .util import add_figure_route, set_env
+import os
 
 
 class MCPCLI:
     """Base class for CLI applications with support for dynamic modules and parameters."""
     
-    def __init__(self, name: str, help_text: str, manager=None, modules=ModuleEnum):
+    def __init__(self, name: str, help_text: str, mcp=None, manager=None):
         self.name = name
-        self.modules = modules
+        self.mcp = mcp
         self.manager = manager
-        self.app = typer.Typer(
-            name=name,
-            help=help_text,
-            add_completion=False,
-            no_args_is_help=True,
+        self.parser = argparse.ArgumentParser(
+            description=help_text,
+            prog=name
         )
+        self.subcommands: Dict[str, tuple[argparse.ArgumentParser, Callable]] = {}
         self._setup_commands()
     
     def _setup_commands(self):
         """Setup the main commands for the CLI."""
-        self.app.command(name="run", help="Start the server with the specified configuration")(self.run_command())
-        self.app.callback()(self._callback)
-
-    def run_command(self):
-        def _run_command(
-            log_file: Optional[str] = typer.Option(None, "--log-file", help="log file path, use stdout if None"),
-            transport: TransportEnum = typer.Option(TransportEnum.STDIO, "-t", "--transport", help="specify transport type", 
-                                        case_sensitive=False),
-            port: int = typer.Option(8000, "-p", "--port", help="transport port"),
-            host: str = typer.Option("127.0.0.1", "--host", help="transport host"),
-            forward: str = typer.Option(None, "-f", "--forward", help="forward request to another server"),
-            module: list[self.modules] = typer.Option(
-                [self.modules.ALL], 
-                "-m", 
-                "--module", 
-                help="specify module to run"
-            ),
-        ):
-            """Start the server with the specified configuration."""
-            if "all" in module:
-                modules = None
-            elif isinstance(module, list) and bool(module):
-                modules = [m.value for m in module]
-            self.mcp =  self.manager(self.name, include_modules=modules).mcp
-
-            self.run_mcp(log_file, forward, transport, host, port)
-        return _run_command
+        subparsers = self.parser.add_subparsers(dest='command', help='Available commands')        
+        run_parser = subparsers.add_parser('run', help='Start the server with the specified configuration')
+        self._setup_run_command(run_parser)
+        self.subcommands['run'] = (run_parser, self._run_command)
         
-
-    def _callback(self):
-        """Liana MCP CLI root command."""
-        pass
+    def _setup_run_command(self, parser: argparse.ArgumentParser):
+        """Setup run command arguments."""
+        parser.add_argument('-t', '--transport', default="stdio",
+                          choices=["stdio", "shttp", "sse"],
+                          help='specify transport type')
+        parser.add_argument('-p', '--port', type=int, default=8000, help='transport port')
+        parser.add_argument('--host', default='127.0.0.1', help='transport host')
+        parser.add_argument('-f', '--forward', help='forward request to another server')
+        parser.add_argument('-wd', '--working-dir', default=".", help='working directory')
+        parser.add_argument('--log-file', help='log file path, use stdout if None')
+    
+    def add_command(self, name: str, help_text: str, handler: Callable) -> argparse.ArgumentParser:
+        """add new subcommand
+        
+        Args:
+            name: subcommand name
+            help_text: help text
+            handler: handler function
+            
+        Returns:
+            ArgumentParser: parser for the subcommand
+        """
+        subparsers = self.parser._subparsers._group_actions[0]
+        parser = subparsers.add_parser(name, help=help_text)
+        self.subcommands[name] = (parser, handler)
+        return parser
+    
+    def get_command_parser(self, name: str) -> Optional[argparse.ArgumentParser]:
+        """get the parser for the subcommand
+        
+        Args:
+            name: subcommand name
+            
+        Returns:
+            ArgumentParser: parser for the subcommand, return None if the subcommand does not exist
+        """
+        if name in self.subcommands:
+            return self.subcommands[name][0]
+        return None
+    
+    def _run_command(self, args):
+        """Start the server with the specified configuration."""
+        os.chdir(args.working_dir)
+        if hasattr(args, 'module'):
+            if "all" in args.module:
+                modules = None
+            elif isinstance(args.module, list) and bool(args.module):
+                modules = args.module
+        else:
+            modules = None
+        if self.manager is not None:
+            self.mcp = self.manager(self.name, include_modules=modules).mcp
+        elif self.mcp is not None:
+            pass
+        else:
+            raise ValueError("No manager or mcp provided")
+        transport = args.transport
+        self.run_mcp(args.log_file, args.forward, transport, args.host, args.port)
 
     def run_mcp(self, log_file, forward, transport, host, port):
         set_env(log_file, forward, transport, host, port)
@@ -80,8 +92,8 @@ class MCPCLI:
         if transport == "stdio":
             self.mcp.run()
         elif transport in ["sse", "shttp"]:
+            transport = "streamable-http" if transport == "shttp" else transport
             add_figure_route(self.mcp)
-            transport = transport.transport_value
             self.mcp.run(
                 transport=transport,
                 host=host, 
@@ -89,8 +101,11 @@ class MCPCLI:
                 log_level="info"
             )
  
-    def run_cli(self, mcp=None, module_dic=None):
+    def run(self):
         """Run the CLI application."""
-        self.mcp = mcp
-        self.module_dic = module_dic
-        self.app()
+        args = self.parser.parse_args()
+        if args.command in self.subcommands:
+            handler = self.subcommands[args.command][1]
+            handler(args)
+        else:
+            self.parser.print_help()
