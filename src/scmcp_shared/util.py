@@ -260,14 +260,10 @@ def setup_mcp(mcp, sub_mcp_dic, modules=None):
     return mcp
 
 def _update_args(mcp, func, args_dic : dict):
-    defs = mcp._tool_manager._tools[func].parameters['$defs']
-    model_names = list(defs.keys())
-    args_model = model_names[0] if  model_names[0] != "AdataModel" else model_names[1]
     for args, property_dic in args_dic.items():
         for pk, v in property_dic.items():
-            for model in model_names:
-                if args in mcp._tool_manager._tools[func].parameters['$defs'][model]["properties"]:
-                    mcp._tool_manager._tools[func].parameters['$defs'][model]["properties"][args][pk] = v
+            mcp._tool_manager._tools[func].parameters["properties"]["request"].setdefault(pk, {})
+            mcp._tool_manager._tools[func].parameters["properties"]["request"][pk][args] = v
 
 
 def update_mcp_args(mcp, tool_args : dict):
