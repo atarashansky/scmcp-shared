@@ -376,7 +376,7 @@ class ScanpyToolsMCP(BaseMCP):
         return _score_genes_cell_cycle
 
     def _tool_pca(self):
-        def _pca(request: PCAModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _pca(request: PCAModel=PCAModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """Compute PCA (Principal Component Analysis)."""
             try:
                 result = forward_request("tl_pca", request, adinfo)
