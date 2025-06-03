@@ -104,7 +104,10 @@ def savefig(axes, func=None, **kwargs):
     args = []
     for k,v in kwargs.items():
         if isinstance(v, (tuple, list, set)):
-            v = v[:3]  ## show first 5 elements
+            v = v[:3]  ## show first 3 elements
+            args.append(f"{k}-{'-'.join([str(i) for i in v])}")
+        elif isinstance(v, dict):
+            v = list(v.keys())[:3]  ## show first 3 elements
             args.append(f"{k}-{'-'.join([str(i) for i in v])}")
         else:
             args.append(f"{k}-{v}")
