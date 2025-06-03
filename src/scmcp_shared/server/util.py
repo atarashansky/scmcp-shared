@@ -95,7 +95,7 @@ class ScanpyUtilMCP(BaseMCP):
                     return result
                 adata = get_ads().get_adata(adinfo=adinfo)
                 columns = list(adata.var.columns)
-                add_op_log(adata, list_var, {}, adinfo)
+                add_op_log(adata, "list_var", {}, adinfo)
                 return columns
             except ToolError as e:
                 raise ToolError(e)
@@ -115,7 +115,7 @@ class ScanpyUtilMCP(BaseMCP):
                     return result    
                 adata = get_ads().get_adata(adinfo=adinfo)
                 columns = list(adata.obs.columns)
-                add_op_log(adata, list_obs, {}, adinfo)
+                add_op_log(adata, "list_obs", {}, adinfo)
                 return columns
             except ToolError as e:
                 raise ToolError(e)
@@ -136,7 +136,7 @@ class ScanpyUtilMCP(BaseMCP):
                 adata = get_ads().get_adata(adinfo=adinfo)
                 var_names = request.var_names
                 result = {v: v in adata.var_names for v in var_names}
-                add_op_log(adata, check_var, {"var_names": var_names}, adinfo)
+                add_op_log(adata, "check_var", {"var_names": var_names}, adinfo)
                 return result
             except ToolError as e:
                 raise ToolError(e)
