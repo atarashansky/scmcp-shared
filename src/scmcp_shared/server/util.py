@@ -157,7 +157,7 @@ class ScanpyUtilMCP(BaseMCP):
                 ads = get_ads()
                 adata = ads.get_adata(adinfo=adinfo)
                 kwargs = {k: v for k, v in request.model_dump().items() if v is not None}
-                merged_adata = adata.concat(list(ads.adata_dic[dtype].values()), **kwargs)
+                merged_adata = adata.concat(ads.adata_dic, **kwargs)
                 ads.adata_dic[dtype] = {}
                 ads.active_id = "merged_adata"
                 add_op_log(merged_adata, ad.concat, kwargs, adinfo)
