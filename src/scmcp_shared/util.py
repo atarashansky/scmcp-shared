@@ -209,7 +209,7 @@ def get_ads():
 
 
 def generate_msg(adinfo, adata, ads):
-    return {"sampleid": adinfo.sampleid or ads.active_id, "dtype": adinfo.adtype, "adata": adata}
+    return {"sampleid": adinfo.sampleid or ads.active_id, "adtype": adinfo.adtype, "adata": adata}
 
 
 def sc_like_plot(plot_func, adata, request, adinfo, **kwargs):
@@ -270,3 +270,9 @@ def update_mcp_args(mcp, tool_args : dict):
     tools = mcp._tool_manager._tools.keys()
     for tool in tool_args: 
         _update_args(mcp, tool, tool_args[tool])
+
+
+def check_adata(adata, adinfo, ads):
+    sampleid = adinfo.sampleid or ads.active_id
+    if sampleid != adata.uns["scmcp_sampleid"]:
+        raise ValueError(f"sampleid mismatch: {sampleid} != {adata.uns['scmcp_sampleid']}")
