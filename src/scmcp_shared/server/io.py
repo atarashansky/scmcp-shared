@@ -33,7 +33,7 @@ class ScanpyIOMCP(BaseMCP):
                 elif file.is_file():
                     func_kwargs = filter_args(request, sc.read)
                     adata = sc.read(**func_kwargs)
-                    if not kwargs.get("first_column_obs", True):
+                    if not kwargs.get("transpose", True):
                         adata = adata.T
                 else:
                     raise FileNotFoundError(f"{kwargs['filename']} does not exist")
@@ -47,8 +47,18 @@ class ScanpyIOMCP(BaseMCP):
                 adata.layers["counts"] = adata.X
                 adata.var_names_make_unique()
                 adata.obs_names_make_unique()
+                adata.obs["scmcp_sampleid"] = adinfo.sampleid or ads.active_id
                 ads.set_adata(adata, adinfo=adinfo)
-                return generate_msg(adinfo, adata, ads)
+                return [
+                    {
+                        "sampleid": adinfo.sampleid or ads.active_id, 
+                        "adtype": adinfo.adtype, 
+                        "adata": adata,
+                        "adata.obs_names[:10]": adata.obs_names[:10],
+                        "adata.var_names[:10]": adata.var_names[:10],
+                        "notice": "check obs_names and var_names. transpose the data if needed"
+                    }
+                    ]
             except ToolError as e:
                 raise ToolError(e)
             except Exception as e:

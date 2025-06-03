@@ -30,9 +30,9 @@ class ReadModel(BaseModel):
         default=False,
         description="Assume the first column stores row names. This is only necessary if these are not strings: strings in the first column are automatically assumed to be row names."
     )
-    first_column_obs: bool = Field(
-        default=True,
-        description="If True, assume the first column stores observations (cell or barcode) names when provide text file. If False, the data will be transposed."
+    transpose: bool = Field(
+        default=False,
+        description="If True, the data will be transposed."
     )
     backup_url: str = Field(
         default=None,
