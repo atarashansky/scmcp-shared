@@ -135,7 +135,11 @@ class ScanpyUtilMCP(BaseMCP):
                     return result     
                 adata = get_ads().get_adata(adinfo=adinfo)
                 var_names = request.var_names
-                result = {v: v in adata.var_names for v in var_names}
+                if adata.raw is not None:
+                    all_var_names = adata.raw.to_adata().var_names
+                else:
+                    all_var_names = adata.var_names
+                result = {v: v in all_var_names for v in var_names}
                 add_op_log(adata, "check_var", {"var_names": var_names}, adinfo)
                 return result
             except ToolError as e:
