@@ -133,7 +133,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _calculate_qc_metrics
 
     def _tool_log1p(self):
-        def _log1p(request: Log1PModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _log1p(request: Log1PModel=Log1PModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """Logarithmize the data matrix"""
             try:
                 result = forward_request("pp_log1p", request, adinfo)
