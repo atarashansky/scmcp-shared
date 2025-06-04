@@ -134,7 +134,7 @@ class ScanpyToolsMCP(BaseMCP):
         return _embedding_density
 
     def _tool_leiden(self):
-        def _leiden(request: LeidenModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _leiden(request: LeidenModel=LeidenModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """Leiden clustering algorithm for community detection"""
             try:
                 result = forward_request("tl_leiden", request, adinfo)
