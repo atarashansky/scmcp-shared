@@ -87,7 +87,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _mark_var
 
     def _tool_list_var(self):
-        def _list_var(request: ListVarModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _list_var(request: ListVarModel=ListVarModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """List key columns in adata.var. It should be called for checking when other tools need var key column names as input."""
             try:
                 result = forward_request("ul_list_var", request, adinfo)
