@@ -90,8 +90,8 @@ class ScanpyPreprocessingMCP(BaseMCP):
                         adata = adata[:, adata.var.highly_variable]
                     add_op_log(adata, "subset_genes", 
                         {
-                        "var_key": request.var_key, "var_value": request.var_value, 
-                        "var_min": request.var_min, "var_max": request.var_max, "hpv":  request.highly_variable
+                        "var_key": request.var_key,  "var_min": request.var_min, "var_max": request.var_max, 
+                        "hpv":  request.highly_variable
                         }, adinfo
                     )
                 ads.set_adata(adata, adinfo=adinfo)
