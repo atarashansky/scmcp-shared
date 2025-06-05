@@ -23,7 +23,7 @@ class ScanpyToolsMCP(BaseMCP):
         super().__init__("ScanpyMCP-TL-Server", include_tools, exclude_tools, AdataInfo)
 
     def _tool_tsne(self):
-        def _tsne(request: TSNEModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _tsne(request: TSNEModel=TSNEModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """t-distributed stochastic neighborhood embedding (t-SNE) for visualization"""
             try:
                 result = forward_request("tl_tsne", request, adinfo)
@@ -45,7 +45,7 @@ class ScanpyToolsMCP(BaseMCP):
         return _tsne
 
     def _tool_umap(self):
-        def _umap(request: UMAPModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _umap(request: UMAPModel=UMAPModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """Uniform Manifold Approximation and Projection (UMAP) for visualization"""
             try:
                 result = forward_request("tl_umap", request, adinfo)
@@ -156,7 +156,7 @@ class ScanpyToolsMCP(BaseMCP):
         return _leiden
 
     def _tool_louvain(self):
-        def _louvain(request: LouvainModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _louvain(request: LouvainModel=LouvainModel(), adinfo: self.AdataInfo=self.AdataInfo()):
             """Louvain clustering algorithm for community detection"""
             try:
                 result = forward_request("tl_louvain", request, adinfo)
