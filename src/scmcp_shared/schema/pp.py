@@ -73,7 +73,7 @@ class FilterGenes(BaseModel):
         return v
 
 
-class SubsetCellModel(BaseModel):
+class SubsetCellParams(BaseModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
     obs_key: Optional[str] = Field(
         default=None,
@@ -109,7 +109,7 @@ class SubsetCellModel(BaseModel):
     )
 
 
-class SubsetGeneModel(BaseModel):
+class SubsetGeneParams(BaseModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
     min_counts: Optional[int] = Field(
         default=None,
@@ -196,7 +196,7 @@ class CalculateQCMetrics(BaseModel):
     
 
 
-class Log1PModel(BaseModel):
+class Log1PParams(BaseModel):
     """Input schema for the log1p preprocessing tool."""
     
     base: Optional[Union[int, float]] = Field(
@@ -233,7 +233,7 @@ class Log1PModel(BaseModel):
 
 
 
-class HighlyVariableGenesModel(BaseModel):
+class HighlyVariableGenesParams(BaseModel):
     """Input schema for the highly_variable_genes preprocessing tool."""
     
     layer: Optional[str] = Field(
@@ -307,7 +307,7 @@ class HighlyVariableGenesModel(BaseModel):
         return v
 
 
-class RegressOutModel(BaseModel):
+class RegressOutParams(BaseModel):
     """Input schema for the regress_out preprocessing tool."""
     
     keys: Union[str, List[str]] = Field(
@@ -340,7 +340,7 @@ class RegressOutModel(BaseModel):
         raise ValueError("keys must be a string or list of strings")
 
 
-class ScaleModel(BaseModel):
+class ScaleParams(BaseModel):
     """Input schema for the scale preprocessing tool."""
     
     zero_center: bool = Field(
@@ -376,7 +376,7 @@ class ScaleModel(BaseModel):
         return v
 
 
-class CombatModel(BaseModel):
+class CombatParams(BaseModel):
     """Input schema for the combat batch effect correction tool."""
     
     key: str = Field(
@@ -405,7 +405,7 @@ class CombatModel(BaseModel):
         return v
 
 
-class ScrubletModel(BaseModel):
+class ScrubletParams(BaseModel):
     """Input schema for the scrublet doublet prediction tool."""
     
     adata_sim: Optional[str] = Field(
@@ -511,7 +511,7 @@ class ScrubletModel(BaseModel):
         return v.lower()
 
 
-class NeighborsModel(BaseModel):
+class NeighborsParams(BaseModel):
     """Input schema for the neighbors graph construction tool."""
     
     n_neighbors: int = Field(
@@ -589,7 +589,7 @@ class NeighborsModel(BaseModel):
         return v
 
 
-class NormalizeTotalModel(BaseModel):
+class NormalizeTotalParams(BaseModel):
     """Input schema for the normalize_total preprocessing tool."""
     
     target_sum: Optional[float] = Field(

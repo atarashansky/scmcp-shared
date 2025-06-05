@@ -7,7 +7,7 @@ from typing import Optional, Literal
 
 
 
-class ReadModel(BaseModel):
+class ReadParams(BaseModel):
     """Input schema for the read tool."""
     filename: str = Field(
         ...,
@@ -82,7 +82,7 @@ class ReadModel(BaseModel):
         return v
 
 
-class WriteModel(BaseModel):
+class WriteParams(BaseModel):
     """Input schema for the write tool."""
     filename: str = Field(
         description="Path to save the file. If no extension is provided, the default format will be used."

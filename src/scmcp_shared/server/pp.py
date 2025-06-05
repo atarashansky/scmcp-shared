@@ -22,7 +22,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         super().__init__("ScanpyMCP-PP-Server", include_tools, exclude_tools, AdataInfo)
 
     def _tool_subset_cells(self):
-        def _subset_cells(request: SubsetCellModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _subset_cells(request: SubsetCellParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """filter or subset cells based on total genes expressed counts and numbers. or values in adata.obs[obs_key]"""
             try:
                 result = forward_request("subset_cells", request, adinfo)
@@ -65,7 +65,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _subset_cells
 
     def _tool_subset_genes(self):
-        def _subset_genes(request: SubsetGeneModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _subset_genes(request: SubsetGeneParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """filter or subset genes based on number of cells or counts, or values in adata.var[var_key] or subset highly variable genes"""
             try:
                 result = forward_request("pp_subset_genes", request, adinfo)
@@ -74,6 +74,11 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 func_kwargs = filter_args(request, sc.pp.filter_genes)
                 ads = get_ads()
                 adata = ads.get_adata(adinfo=adinfo).copy()
+                if request.highly_variable:
+                    adata = adata[:, adata.var.highly_variable]
+                    add_op_log(adata, "subset_genes", 
+                        {"hpv":  "true"}, adinfo
+                    )
                 if func_kwargs:
                     sc.pp.filter_genes(adata, **func_kwargs)
                     add_op_log(adata, sc.pp.filter_genes, func_kwargs, adinfo)
@@ -86,8 +91,6 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     if request.var_max is not None:
                         mask = mask & (adata.var[request.var_key] <= request.var_max)        
                     adata = adata[:, mask]
-                    if request.highly_variable:
-                        adata = adata[:, mask & adata.var.highly_variable]
                     add_op_log(adata, "subset_genes", 
                         {
                         "var_key": request.var_key,  "var_min": request.var_min, "var_max": request.var_max, 
@@ -133,7 +136,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _calculate_qc_metrics
 
     def _tool_log1p(self):
-        def _log1p(request: Log1PModel=Log1PModel(), adinfo: self.AdataInfo=self.AdataInfo()):
+        def _log1p(request: Log1PParams=Log1PParams(), adinfo: self.AdataInfo=self.AdataInfo()):
             """Logarithmize the data matrix"""
             try:
                 result = forward_request("pp_log1p", request, adinfo)
@@ -160,7 +163,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _log1p
 
     def _tool_normalize_total(self):
-        def _normalize_total(request: NormalizeTotalModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _normalize_total(request: NormalizeTotalParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Normalize counts per cell to the same total count"""
             try:
                 result = forward_request("pp_normalize_total", request, adinfo)
@@ -183,7 +186,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _normalize_total
 
     def _tool_highly_variable_genes(self):
-        def _highly_variable_genes(request: HighlyVariableGenesModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _highly_variable_genes(request: HighlyVariableGenesParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Annotate highly variable genes"""
             try:
                 result = forward_request("pp_highly_variable_genes", request, adinfo)
@@ -208,7 +211,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _highly_variable_genes
 
     def _tool_regress_out(self):
-        def _regress_out(request: RegressOutModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _regress_out(request: RegressOutParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Regress out (mostly) unwanted sources of variation."""
             try:
                 result = forward_request("pp_regress_out", request, adinfo)
@@ -231,7 +234,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _regress_out
 
     def _tool_scale(self):
-        def _scale(request: ScaleModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _scale(request: ScaleParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Scale data to unit variance and zero mean"""
             try:
                 result = forward_request("pp_scale", request, adinfo)
@@ -256,7 +259,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _scale
 
     def _tool_combat(self):
-        def _combat(request: CombatModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _combat(request: CombatParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """ComBat function for batch effect correction"""
             try:
                 result = forward_request("pp_combat", request, adinfo)
@@ -281,7 +284,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _combat
 
     def _tool_scrublet(self):
-        def _scrublet(request: ScrubletModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _scrublet(request: ScrubletParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Predict doublets using Scrublet"""
             try:
                 result = forward_request("pp_scrublet", request, adinfo)
@@ -303,7 +306,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return _scrublet
 
     def _tool_neighbors(self):
-        def _neighbors(request: NeighborsModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _neighbors(request: NeighborsParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Compute nearest neighbors distance matrix and neighborhood graph"""
             try:
                 result = forward_request("pp_neighbors", request, adinfo)

@@ -16,7 +16,7 @@ class ScanpyIOMCP(BaseMCP):
         super().__init__("SCMCP-IO-Server", include_tools, exclude_tools, AdataInfo)
 
     def _tool_read(self):
-        def _read(request: ReadModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _read(request: ReadParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """
             Read data from 10X directory or various file formats (h5ad, 10x, text files, etc.).
             """
@@ -69,7 +69,7 @@ class ScanpyIOMCP(BaseMCP):
         return _read
 
     def _tool_write(self):
-        def _write(request: WriteModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _write(request: WriteParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """save adata into a file."""
             try:
                 res = forward_request("io_write", request, adinfo)

@@ -72,12 +72,12 @@ class FigureSizeMixin:
 
 
 # 基础可视化模型，包含所有可视化工具共享的字段
-class BaseVisualizationModel(BaseModel, LegendMixin, ColorMappingMixin, FigureSizeMixin):
+class BaseVisualizationParams(BaseModel, LegendMixin, ColorMappingMixin, FigureSizeMixin):
     """基础可视化模型，包含所有可视化工具共享的字段"""    
     pass
 
 # 基础嵌入可视化模型，包含所有嵌入可视化工具共享的字段
-class BaseEmbeddingModel(BaseVisualizationModel):
+class BaseEmbeddingParams(BaseVisualizationParams):
     """基础嵌入可视化模型，包含所有嵌入可视化工具共享的字段"""
     
     color: Optional[Union[str, List[str]]] = Field(
@@ -176,8 +176,8 @@ class BaseEmbeddingModel(BaseVisualizationModel):
     )
 
 
-# 重构 ScatterModel 作为基础散点图模型
-class BaseScatterModel(BaseVisualizationModel):
+# 重构 ScatterParams 作为基础散点图模型
+class BaseScatterParams(BaseVisualizationParams):
     """基础散点图模型"""
     
     x: Optional[str] = Field(
@@ -211,8 +211,8 @@ class BaseScatterModel(BaseVisualizationModel):
     )
 
 
-# 使用继承关系重构 EnhancedScatterModel
-class EnhancedScatterModel(BaseScatterModel):
+# 使用继承关系重构 EnhancedScatterParams
+class EnhancedScatterParams(BaseScatterParams):
     """Input schema for the enhanced scatter plotting tool."""
     
     sort_order: bool = Field(
@@ -261,7 +261,7 @@ class EnhancedScatterModel(BaseScatterModel):
 
 
 # 创建基础统计可视化模型
-class BaseStatPlotModel(BaseVisualizationModel):
+class BaseStatPlotParams(BaseVisualizationParams):
     """基础统计可视化模型，包含统计图表共享的字段"""
     
     groupby: Optional[str] = Field(
@@ -328,8 +328,8 @@ class BaseStatPlotModel(BaseVisualizationModel):
             raise ValueError("size must be a positive integer")
         return v
 
-# 添加缺失的 BaseMatrixModel 类
-class BaseMatrixModel(BaseVisualizationModel):
+# 添加缺失的 BaseMatrixParams 类
+class BaseMatrixParams(BaseVisualizationParams):
     """基础矩阵可视化模型，包含所有矩阵可视化工具共享的字段"""
     
     var_names: Union[List[str], Mapping[str, List[str]]] = Field(
@@ -374,8 +374,8 @@ class BaseMatrixModel(BaseVisualizationModel):
     )
 
 
-# 重构 HeatmapModel
-class HeatmapModel(BaseMatrixModel):
+# 重构 HeatmapParams
+class HeatmapParams(BaseMatrixParams):
     """Input schema for the heatmap plotting tool."""
     
     num_categories: int = Field(
@@ -412,14 +412,14 @@ class HeatmapModel(BaseMatrixModel):
         return v
 
 
-# 重构 TracksplotModel
-class TracksplotModel(BaseMatrixModel):
+# 重构 TracksplotParams
+class TracksplotParams(BaseMatrixParams):
     """Input schema for the tracksplot plotting tool."""
-    # 所有需要的字段已经在 BaseMatrixModel 中定义
+    # 所有需要的字段已经在 BaseMatrixParams 中定义
 
 
-# 重构 ViolinModel
-class ViolinModel(BaseStatPlotModel):
+# 重构 ViolinParams
+class ViolinParams(BaseStatPlotParams):
     """Input schema for the violin plotting tool."""
     
     keys: Union[str, List[str]] = Field(
@@ -477,8 +477,8 @@ class ViolinModel(BaseStatPlotModel):
         return v
 
 
-# 重构 MatrixplotModel
-class MatrixplotModel(BaseMatrixModel):
+# 重构 MatrixplotParams
+class MatrixplotParams(BaseMatrixParams):
     """Input schema for the matrixplot plotting tool."""
     
     num_categories: int = Field(
@@ -523,8 +523,8 @@ class MatrixplotModel(BaseMatrixModel):
         return v
 
 
-# 重构 DotplotModel
-class DotplotModel(BaseMatrixModel):
+# 重构 DotplotParams
+class DotplotParams(BaseMatrixParams):
     """Input schema for the dotplot plotting tool."""
     
     expression_cutoff: float = Field(
@@ -577,8 +577,8 @@ class DotplotModel(BaseMatrixModel):
     )
 
 
-# 重构 RankGenesGroupsModel
-class RankGenesGroupsModel(BaseVisualizationModel):
+# 重构 RankGenesGroupsParams
+class RankGenesGroupsParams(BaseVisualizationParams):
     """Input schema for the rank_genes_groups plotting tool."""
     
     n_genes: int = Field(
@@ -631,7 +631,7 @@ class RankGenesGroupsModel(BaseVisualizationModel):
 
 
 # 重构 ClusterMapModel
-class ClusterMapModel(BaseModel):
+class ClusterMapParams(BaseModel):
     """Input schema for the clustermap plotting tool."""
 
     obs_keys: Optional[str] = Field(
@@ -645,8 +645,8 @@ class ClusterMapModel(BaseModel):
 
 
 
-# 重构 StackedViolinModel
-class StackedViolinModel(BaseStatPlotModel):
+# 重构 StackedViolinParams
+class StackedViolinParams(BaseStatPlotParams):
     """Input schema for the stacked_violin plotting tool."""
     
     stripplot: bool = Field(
@@ -688,8 +688,8 @@ class StackedViolinModel(BaseStatPlotModel):
         return v
 
 
-# 重构 TrackingModel
-class TrackingModel(BaseVisualizationModel):
+# 重构 TrackingParams
+class TrackingParams(BaseVisualizationParams):
     """Input schema for the tracking plotting tool."""
     
     groupby: str = Field(
@@ -717,8 +717,8 @@ class TrackingModel(BaseVisualizationModel):
         return v
 
 
-# 重构 EmbeddingDensityModel
-class EmbeddingDensityModel(BaseEmbeddingModel):
+# 重构 EmbeddingDensityParams
+class EmbeddingDensityParams(BaseEmbeddingParams):
     """Input schema for the embedding_density plotting tool."""
     
     basis: str = Field(
@@ -751,7 +751,7 @@ class EmbeddingDensityModel(BaseEmbeddingModel):
         return v
 
 
-class PCAModel(BaseEmbeddingModel):
+class PCAParams(BaseEmbeddingParams):
     """Input schema for the PCA plotting tool."""
     
     annotate_var_explained: bool = Field(
@@ -761,22 +761,22 @@ class PCAModel(BaseEmbeddingModel):
 
 
 # 重构 UMAP 模型
-class UMAPModel(BaseEmbeddingModel):
+class UMAPParams(BaseEmbeddingParams):
     """Input schema for the UMAP plotting tool."""
-    # 所有需要的字段已经在 BaseEmbeddingModel 中定义
+    # 所有需要的字段已经在 BaseEmbeddingParams 中定义
 
 
 # 重构 TSNE 模型
-class TSNEModel(BaseEmbeddingModel):
+class TSNEParams(BaseEmbeddingParams):
     """Input schema for the TSNE plotting tool."""
-    # 所有需要的字段已经在 BaseEmbeddingModel 中定义
+    # 所有需要的字段已经在 BaseEmbeddingParams 中定义
 
-# 重构 DiffusionMapModel
-class DiffusionMapModel(BaseEmbeddingModel):
+# 重构 DiffusionMapParams
+class DiffusionMapParams(BaseEmbeddingParams):
     """Input schema for the diffusion map plotting tool."""
-    # 所有需要的字段已经在 BaseEmbeddingModel 中定义
+    # 所有需要的字段已经在 BaseEmbeddingParams 中定义
 
-class HighestExprGenesModel(BaseVisualizationModel):
+class HighestExprGenesParams(BaseVisualizationParams):
     """Input schema for the highest_expr_genes plotting tool."""
     
     n_top: int = Field(
@@ -803,7 +803,7 @@ class HighestExprGenesModel(BaseVisualizationModel):
         return v
 
 
-class HighlyVariableGenesModel(BaseVisualizationModel):
+class HighlyVariableGenesParams(BaseVisualizationParams):
     """Input schema for the highly_variable_genes plotting tool."""
     
     log: bool = Field(
@@ -816,7 +816,7 @@ class HighlyVariableGenesModel(BaseVisualizationModel):
         description="Whether to plot highly variable genes or all genes."
     )
 
-class PCAVarianceRatioModel(BaseVisualizationModel):
+class PCAVarianceRatioParams(BaseVisualizationParams):
     """Input schema for the pca_variance_ratio plotting tool."""
     
     n_pcs: int = Field(
@@ -839,7 +839,7 @@ class PCAVarianceRatioModel(BaseVisualizationModel):
 
 # ... existing code ...
 
-class RankGenesGroupsDotplotModel(BaseMatrixModel):
+class RankGenesGroupsDotplotParams(BaseMatrixParams):
     """Input schema for the rank_genes_groups_dotplot plotting tool."""
     
     groups: Optional[Union[str, List[str]]] = Field(
@@ -874,7 +874,7 @@ class RankGenesGroupsDotplotModel(BaseMatrixModel):
 
 
 
-class EmbeddingModel(BaseEmbeddingModel):
+class EmbeddingParams(BaseEmbeddingParams):
     """Input schema for the embedding plotting tool."""
     
     basis: str = Field(

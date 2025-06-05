@@ -5,7 +5,7 @@ import scanpy as sc
 from fastmcp import FastMCP , Context
 from fastmcp.exceptions import ToolError
 from ..schema.util import *
-from ..schema import AdataModel, AdataInfo
+from ..schema import AdataInfo
 from ..util import filter_args, forward_request, get_ads, generate_msg,add_op_log
 from .base import BaseMCP
 
@@ -24,7 +24,7 @@ class ScanpyUtilMCP(BaseMCP):
 
 
     def _tool_query_op_log(self):
-        def _query_op_log(request: QueryOpLogModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _query_op_log(request: QueryOpLogParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Query the adata operation log"""
             adata = get_ads().get_adata(adinfo=adinfo)
             op_dic = adata.uns["operation"]["op"]
@@ -36,7 +36,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _query_op_log
 
     def _tool_mark_var(self):
-        def _mark_var(request: MarkVarModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _mark_var(request: MarkVarParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """
             Determine if each gene meets specific conditions and store results in adata.var as boolean values.
             For example: mitochondrion genes startswith MT-.
@@ -87,7 +87,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _mark_var
 
     def _tool_list_var(self):
-        def _list_var(request: ListVarModel=ListVarModel(), adinfo: self.AdataInfo=self.AdataInfo()):
+        def _list_var(request: ListVarParams=ListVarParams(), adinfo: self.AdataInfo=self.AdataInfo()):
             """List key columns in adata.var. It should be called for checking when other tools need var key column names as input."""
             try:
                 result = forward_request("ul_list_var", request, adinfo)
@@ -107,7 +107,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _list_var
 
     def _tool_list_obs(self):
-        def _list_obs(request: ListObsModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _list_obs(request: ListObsParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """List key columns in adata.obs. It should be called before other tools need obs key column names input."""
             try:
                 result = forward_request("ul_list_obs", request, adinfo)
@@ -127,7 +127,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _list_obs
 
     def _tool_check_var(self):
-        def _check_var(request: VarNamesModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _check_var(request: VarNamesParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Check if genes/variables exist in adata.var_names. This tool should be called before gene expression visualizations or color by genes."""
             try:
                 result = forward_request("ul_check_var", request, adinfo)
@@ -152,7 +152,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _check_var
 
     def _tool_merge_adata(self):
-        def _merge_adata(request: ConcatBaseModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _merge_adata(request: ConcatBaseParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Merge multiple adata objects."""
             try:
                 result = forward_request("ul_merge_adata", request, adinfo)
@@ -177,7 +177,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _merge_adata
 
     def _tool_set_dpt_iroot(self):
-        def _set_dpt_iroot(request: DPTIROOTModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _set_dpt_iroot(request: DPTIROOTParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Set the iroot cell"""
             try:
                 result = forward_request("ul_set_dpt_iroot", request, adinfo)
@@ -208,7 +208,7 @@ class ScanpyUtilMCP(BaseMCP):
         return _set_dpt_iroot
 
     def _tool_add_layer(self):
-        def _add_layer(request: AddLayerModel, adinfo: self.AdataInfo=self.AdataInfo()):
+        def _add_layer(request: AddLayerParams, adinfo: self.AdataInfo=self.AdataInfo()):
             """Add a layer to the AnnData object."""
             try:
                 result = forward_request("ul_add_layer", request, adinfo)

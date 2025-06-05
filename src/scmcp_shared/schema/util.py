@@ -10,7 +10,7 @@ from typing import Optional, Union, List, Dict, Any, Callable, Collection, Liter
 
 
 
-class MarkVarModel(BaseModel):
+class MarkVarParams(BaseModel):
     """Determine or mark if each gene meets specific conditions and store results in adata.var as boolean values"""
     
     var_name: str = Field(
@@ -32,15 +32,15 @@ class MarkVarModel(BaseModel):
     )
 
 
-class ListVarModel(BaseModel):
+class ListVarParams(BaseModel):
     """ListVarModel"""    
     pass
 
-class ListObsModel(BaseModel):
+class ListObsParams(BaseModel):
     """ListObsModel"""    
     pass    
 
-class VarNamesModel(BaseModel):
+class VarNamesParams(BaseModel):
     """ListObsModel"""    
     var_names: List[str] = Field(
             default=None,
@@ -48,7 +48,7 @@ class VarNamesModel(BaseModel):
         )
 
 
-class ConcatBaseModel(BaseModel):
+class ConcatBaseParams(BaseModel):
     """Model for concatenating AnnData objects"""
     
     axis: Literal['obs', 0, 'var', 1] = Field(
@@ -89,7 +89,7 @@ class ConcatBaseModel(BaseModel):
     )
 
 
-class DPTIROOTModel(BaseModel):
+class DPTIROOTParams(BaseModel):
     """Input schema for setting the root cell for diffusion pseudotime."""
     diffmap_key: str = Field(
         default="X_diffmap",
@@ -103,7 +103,7 @@ class DPTIROOTModel(BaseModel):
     )
 
 
-class CelltypeMapCellTypeModel(BaseModel):
+class CelltypeMapCellTypeParams(BaseModel):
     """Input schema for mapping cluster IDs to cell type names."""
     cluster_key: str = Field(
         description="Key in adata.obs containing cluster IDs."
@@ -122,14 +122,14 @@ class CelltypeMapCellTypeModel(BaseModel):
     
 
 
-class AddLayerModel(BaseModel):
+class AddLayerParams(BaseModel):
     """Input schema for adding a layer to AnnData object."""
     layer_name: str = Field(
         description="Name of the layer to add to adata.layers."
     )
  
 
-class QueryOpLogModel(BaseModel):
+class QueryOpLogParams(BaseModel):
     """QueryOpLogModel"""    
     n: int = Field(
         default=10,
