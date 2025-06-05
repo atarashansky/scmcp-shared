@@ -33,25 +33,20 @@ class BaseMCP:
         methods = inspect.getmembers(self, predicate=inspect.ismethod)
         
         # Filter methods that start with _tool_
-        tool_methods = {
-            name[6:]: method  # Remove '_tool_' prefix
-            for name, method in methods
-            if name.startswith('_tool_')
-        }
+        tool_methods = [tl_method() for name, tl_method in methods if name.startswith('_tool_')]
         
         # Filter tools based on include/exclude lists
         if self.include_tools is not None:
-            tool_methods = {k: v for k, v in tool_methods.items() if k in self.include_tools}
+            tool_methods = [tl for tl in tool_methods if tl.name in self.include_tools]
         
         if self.exclude_tools is not None:
-            tool_methods = {k: v for k, v in tool_methods.items() if k not in self.exclude_tools}
+            tool_methods = [tl for tl in tool_methods if tl.name not in self.exclude_tools]
 
         # Register filtered tools
-        for tool_name, tool_method in tool_methods.items():
+        for tool in tool_methods:
             # Get the function returned by the tool method
-            tool_func = tool_method()
-            if tool_func is not None:
-                self.mcp.add_tool(tool_func, name=tool_name)
+            if tool is not None:
+                self.mcp.add_tool(tool)
 
 
 class AdataState:

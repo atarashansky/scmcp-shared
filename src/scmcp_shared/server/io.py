@@ -3,6 +3,7 @@ import inspect
 from pathlib import Path
 import scanpy as sc
 from fastmcp import FastMCP, Context
+from fastmcp.tools.tool import Tool
 from fastmcp.exceptions import ToolError
 from ..schema import AdataInfo
 from ..schema.io import *
@@ -66,7 +67,7 @@ class ScanpyIOMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _read
+        return Tool.from_function(_read, name="read")
 
     def _tool_write(self):
         def _write(request: WriteParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -87,7 +88,7 @@ class ScanpyIOMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _write
+        return Tool.from_function(_write, name="write")
 
 
 # Create an instance of the class

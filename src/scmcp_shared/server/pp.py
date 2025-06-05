@@ -2,6 +2,7 @@ import os
 import inspect
 import scanpy as sc
 from fastmcp import FastMCP, Context
+from fastmcp.tools.tool import Tool
 from fastmcp.exceptions import ToolError
 from ..schema.pp import *
 from ..schema import AdataInfo
@@ -62,7 +63,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _subset_cells
+        return Tool.from_function(_subset_cells, name="subset_cells")
 
     def _tool_subset_genes(self):
         def _subset_genes(request: SubsetGeneParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -106,7 +107,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _subset_genes
+        return Tool.from_function(_subset_genes, name="subset_genes")
 
     def _tool_calculate_qc_metrics(self):
         def _calculate_qc_metrics(request: CalculateQCMetrics, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -133,7 +134,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _calculate_qc_metrics
+        return Tool.from_function(_calculate_qc_metrics, name="calculate_qc_metrics")
 
     def _tool_log1p(self):
         def _log1p(request: Log1PParams=Log1PParams(), adinfo: self.AdataInfo=self.AdataInfo()):
@@ -160,7 +161,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _log1p
+        return Tool.from_function(_log1p, name="log1p")
 
     def _tool_normalize_total(self):
         def _normalize_total(request: NormalizeTotalParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -183,7 +184,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _normalize_total
+        return Tool.from_function(_normalize_total, name="normalize_total")
 
     def _tool_highly_variable_genes(self):
         def _highly_variable_genes(request: HighlyVariableGenesParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -208,7 +209,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _highly_variable_genes
+        return Tool.from_function(_highly_variable_genes, name="highly_variable_genes")
 
     def _tool_regress_out(self):
         def _regress_out(request: RegressOutParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -231,7 +232,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _regress_out
+        return Tool.from_function(_regress_out, name="regress_out")
 
     def _tool_scale(self):
         def _scale(request: ScaleParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -256,7 +257,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _scale
+        return Tool.from_function(_scale, name="scale")
 
     def _tool_combat(self):
         def _combat(request: CombatParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -281,7 +282,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _combat
+        return Tool.from_function(_combat, name="combat")
 
     def _tool_scrublet(self):
         def _scrublet(request: ScrubletParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -303,7 +304,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _scrublet
+        return Tool.from_function(_scrublet, name="scrublet")
 
     def _tool_neighbors(self):
         def _neighbors(request: NeighborsParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -325,4 +326,4 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _neighbors
+        return Tool.from_function(_neighbors, name="neighbors")

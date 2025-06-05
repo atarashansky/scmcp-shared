@@ -3,6 +3,7 @@ import inspect
 from functools import partial
 import scanpy as sc
 from fastmcp import FastMCP, Context
+from fastmcp.tools.tool import Tool
 from fastmcp.exceptions import ToolError
 from ..schema.pl import *
 from ..schema import AdataInfo
@@ -39,7 +40,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _pca
+        return Tool.from_function(_pca, name="pca")
 
     def _tool_diffmap(self):
         def _diffmap(request: DiffusionMapParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -57,7 +58,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _diffmap
+        return Tool.from_function(_diffmap, name="diffmap")
 
     def _tool_violin(self):
         def _violin(request: ViolinParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -77,7 +78,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _violin
+        return Tool.from_function(_violin, name="violin")
 
     def _tool_stacked_violin(self):
         def _stacked_violin(request: StackedViolinParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -95,7 +96,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _stacked_violin
+        return Tool.from_function(_stacked_violin, name="stacked_violin")
 
     def _tool_heatmap(self):
         async def _heatmap(request: HeatmapParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -113,7 +114,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _heatmap
+        return Tool.from_function(_heatmap, name="heatmap")
 
     def _tool_dotplot(self):
         def _dotplot(request: DotplotParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -131,7 +132,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _dotplot
+        return Tool.from_function(_dotplot, name="dotplot")
 
     def _tool_matrixplot(self):
         def _matrixplot(request: MatrixplotParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -149,7 +150,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _matrixplot
+        return Tool.from_function(_matrixplot, name="matrixplot")
 
     def _tool_tracksplot(self):
         def _tracksplot(request: TracksplotParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -167,7 +168,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _tracksplot
+        return Tool.from_function(_tracksplot, name="tracksplot")
 
     def _tool_scatter(self):
         def _scatter(request: EnhancedScatterParams, adinfo: self.AdataInfo=self.AdataInfo()):    
@@ -185,7 +186,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _scatter
+        return Tool.from_function(_scatter, name="scatter")
 
     def _tool_embedding(self):
         def _embedding(request: EmbeddingParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -203,7 +204,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _embedding
+        return Tool.from_function(_embedding, name="embedding")
 
     def _tool_embedding_density(self):
         def _embedding_density(request: EmbeddingDensityParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -221,7 +222,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _embedding_density
+        return Tool.from_function(_embedding_density, name="embedding_density")
 
     def _tool_rank_genes_groups(self):
         def _rank_genes_groups(request: RankGenesGroupsParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -239,7 +240,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _rank_genes_groups
+        return Tool.from_function(_rank_genes_groups, name="rank_genes_groups")
 
     def _tool_rank_genes_groups_dotplot(self):
         def _rank_genes_groups_dotplot(request: RankGenesGroupsDotplotParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -257,7 +258,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _rank_genes_groups_dotplot
+        return Tool.from_function(_rank_genes_groups_dotplot, name="rank_genes_groups_dotplot")
 
     def _tool_clustermap(self):
         def _clustermap(request: ClusterMapParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -275,7 +276,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _clustermap
+        return Tool.from_function(_clustermap, name="clustermap")
 
     def _tool_highly_variable_genes(self):
         def _highly_variable_genes(request: HighlyVariableGenesParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -293,7 +294,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _highly_variable_genes
+        return Tool.from_function(_highly_variable_genes, name="highly_variable_genes")
 
     def _tool_pca_variance_ratio(self):
         def _pca_variance_ratio(request: PCAVarianceRatioParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -311,5 +312,5 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _pca_variance_ratio
+        return Tool.from_function(_pca_variance_ratio, name="pca_variance_ratio")
 

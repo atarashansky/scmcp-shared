@@ -4,6 +4,7 @@ import inspect
 from fastmcp import FastMCP
 import scanpy as sc
 from fastmcp.exceptions import ToolError
+from fastmcp.tools.tool import Tool
 from ..schema.tl import *
 from ..schema import AdataInfo
 from scmcp_shared.util import filter_args, add_op_log, forward_request, get_ads, generate_msg
@@ -42,7 +43,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _tsne
+        return Tool.from_function(_tsne, name="tsne")
 
     def _tool_umap(self):
         def _umap(request: UMAPParams=UMAPParams(), adinfo: self.AdataInfo=self.AdataInfo()):
@@ -64,7 +65,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _umap
+        return Tool.from_function(_umap, name="umap")
 
     def _tool_draw_graph(self):
         def _draw_graph(request: DrawGraphParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -86,7 +87,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _draw_graph
+        return Tool.from_function(_draw_graph, name="draw_graph")
 
     def _tool_diffmap(self):
         def _diffmap(request: DiffMapParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -109,7 +110,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _diffmap
+        return Tool.from_function(_diffmap, name="diffmap")
 
     def _tool_embedding_density(self):  
         def _embedding_density(request: EmbeddingDensityParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -131,7 +132,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _embedding_density
+        return Tool.from_function(_embedding_density, name="embedding_density")
 
     def _tool_leiden(self):
         def _leiden(request: LeidenParams=LeidenParams(), adinfo: self.AdataInfo=self.AdataInfo()):
@@ -153,7 +154,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _leiden
+        return Tool.from_function(_leiden, name="leiden")
 
     def _tool_louvain(self):
         def _louvain(request: LouvainParams=LouvainParams(), adinfo: self.AdataInfo=self.AdataInfo()):
@@ -175,7 +176,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _louvain
+        return Tool.from_function(_louvain, name="louvain")
 
     def _tool_dendrogram(self):
         def _dendrogram(request: DendrogramParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -197,7 +198,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _dendrogram
+        return Tool.from_function(_dendrogram, name="dendrogram")
 
     def _tool_dpt(self):
         def _dpt(request: DPTParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -219,7 +220,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _dpt
+        return Tool.from_function(_dpt, name="dpt")
 
     def _tool_paga(self):
         def _paga(request: PAGAParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -241,7 +242,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _paga
+        return Tool.from_function(_paga, name="paga")
 
     def _tool_ingest(self):
         def _ingest(request: IngestParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -263,7 +264,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _ingest
+        return Tool.from_function(_ingest, name="ingest")   
 
     def _tool_rank_genes_groups(self):
         def _rank_genes_groups(request: RankGenesGroupsParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -285,7 +286,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _rank_genes_groups
+        return Tool.from_function(_rank_genes_groups, name="rank_genes_groups")
 
     def _tool_filter_rank_genes_groups(self):
         def _filter_rank_genes_groups(request: FilterRankGenesGroupsParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -307,7 +308,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _filter_rank_genes_groups
+        return Tool.from_function(_filter_rank_genes_groups, name="filter_rank_genes_groups")
 
     def _tool_marker_gene_overlap(self):
         def _marker_gene_overlap(request: MarkerGeneOverlapParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -329,7 +330,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _marker_gene_overlap
+        return Tool.from_function(_marker_gene_overlap, name="marker_gene_overlap")
 
     def _tool_score_genes(self):
         def _score_genes(request: ScoreGenesParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -351,7 +352,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _score_genes
+        return Tool.from_function(_score_genes, name="score_genes")
 
     def _tool_score_genes_cell_cycle(self):
         def _score_genes_cell_cycle(request: ScoreGenesCellCycleParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -373,7 +374,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _score_genes_cell_cycle
+        return Tool.from_function(_score_genes_cell_cycle, name="score_genes_cell_cycle")
 
     def _tool_pca(self):
         def _pca(request: PCAParams=PCAParams(), adinfo: self.AdataInfo=self.AdataInfo()):
@@ -395,4 +396,4 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _pca
+        return Tool.from_function(_pca, name="pca")

@@ -4,6 +4,7 @@ from pathlib import Path
 import scanpy as sc
 from fastmcp import FastMCP , Context
 from fastmcp.exceptions import ToolError
+from fastmcp.tools.tool import Tool
 from ..schema.util import *
 from ..schema import AdataInfo
 from ..util import filter_args, forward_request, get_ads, generate_msg,add_op_log
@@ -33,7 +34,7 @@ class ScanpyUtilMCP(BaseMCP):
             for opid in opids:
                 op_list.append(op_dic[opid])
             return op_list
-        return _query_op_log
+        return Tool.from_function(_query_op_log, name="query_op_log")
 
     def _tool_mark_var(self):
         def _mark_var(request: MarkVarParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -84,7 +85,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _mark_var
+        return Tool.from_function(_mark_var, name="mark_var")
 
     def _tool_list_var(self):
         def _list_var(request: ListVarParams=ListVarParams(), adinfo: self.AdataInfo=self.AdataInfo()):
@@ -104,7 +105,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _list_var
+        return Tool.from_function(_list_var, name="list_var")
 
     def _tool_list_obs(self):
         def _list_obs(request: ListObsParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -124,7 +125,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _list_obs
+        return Tool.from_function(_list_obs, name="list_obs")
 
     def _tool_check_var(self):
         def _check_var(request: VarNamesParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -149,7 +150,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _check_var
+        return Tool.from_function(_check_var, name="check_var")
 
     def _tool_merge_adata(self):
         def _merge_adata(request: ConcatBaseParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -174,7 +175,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _merge_adata
+        return Tool.from_function(_merge_adata, name="merge_adata")
 
     def _tool_set_dpt_iroot(self):
         def _set_dpt_iroot(request: DPTIROOTParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -205,7 +206,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _set_dpt_iroot
+        return Tool.from_function(_set_dpt_iroot, name="set_dpt_iroot")
 
     def _tool_add_layer(self):
         def _add_layer(request: AddLayerParams, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -237,7 +238,7 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _add_layer
+        return Tool.from_function(_add_layer, name="add_layer")
 
     def _tool_check_samples(self):
         def _check_samples(request: None, adinfo: self.AdataInfo=self.AdataInfo()):
@@ -252,4 +253,4 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ToolError(e.__context__)
                 else:
                     raise ToolError(e)
-        return _check_samples
+        return Tool.from_function(_check_samples, name="check_samples")
