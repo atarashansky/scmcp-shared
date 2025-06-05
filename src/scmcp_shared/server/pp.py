@@ -86,8 +86,8 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     if request.var_max is not None:
                         mask = mask & (adata.var[request.var_key] <= request.var_max)        
                     adata = adata[:, mask]
-                    if request.highly_variable is not None:
-                        adata = adata[:, adata.var.highly_variable]
+                    if request.highly_variable:
+                        adata = adata[:, mask & adata.var.highly_variable]
                     add_op_log(adata, "subset_genes", 
                         {
                         "var_key": request.var_key,  "var_min": request.var_min, "var_max": request.var_max, 
