@@ -79,11 +79,15 @@ class MCPCLI:
             modules = None
         if self.manager is not None:
             self.mcp = self.manager(self.name, include_modules=modules).mcp
+            all_tools = self.mcp._tool_manager._tools
+            auto_tools = {tool: all_tools[tool] for tool in all_tools if all_tools[tool].name in ["search_tool", "run_tool"]}
             if args.tool_mode == "auto":
                 all_tools = self.mcp._tool_manager._tools
                 self.mcp._tool_manager._all_tools = all_tools
-                auto_tools = {tool: all_tools[tool] for tool in all_tools if all_tools[tool].name in ["search_tool", "run_tool"]}
                 self.mcp._tool_manager._tools = auto_tools
+            else:
+                for name in auto_tools:
+                    self.mcp._tool_manager.remove_tool(name)
         elif self.mcp is not None:
             pass
         else:
