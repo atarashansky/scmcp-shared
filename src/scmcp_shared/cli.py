@@ -35,6 +35,7 @@ class MCPCLI:
         parser.add_argument('--host', default='127.0.0.1', help='transport host')
         parser.add_argument('-f', '--forward', help='forward request to another server')
         parser.add_argument('-wd', '--working-dir', default=".", help='working directory')
+        parser.add_argument('--tool-mode', choices=["auto", "normal"], default="normal", help='tool selection mode')
         parser.add_argument('--log-file', help='log file path, use stdout if None')
     
     def add_command(self, name: str, help_text: str, handler: Callable) -> argparse.ArgumentParser:
@@ -78,6 +79,11 @@ class MCPCLI:
             modules = None
         if self.manager is not None:
             self.mcp = self.manager(self.name, include_modules=modules).mcp
+            if args.tool_mode == "auto":
+                all_tools = self.mcp._tool_manager._tools
+                self.mcp._tool_manager._all_tools = all_tools
+                auto_tools = {tool: all_tools[tool] for tool in all_tools if all_tools[tool].name in ["search_tool", "run_tool"]}
+                self.mcp._tool_manager._tools = auto_tools
         elif self.mcp is not None:
             pass
         else:
