@@ -6,7 +6,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 import asyncio
 from typing import Optional, List, Any, Iterable
-
+from .auto import auto_mcp
 
 class BaseMCP:
     """Base class for all Scanpy MCP classes."""
@@ -141,6 +141,7 @@ class BaseMCPManager:
                 asyncio.run(self.mcp.import_server(module_name, mcpi))
             else:
                 asyncio.run(self.mcp.import_server(module_name, mcpi().mcp))
+        asyncio.run(self.mcp.import_server("auto", auto_mcp))
 
     @asynccontextmanager
     async def adata_lifespan(self, server: FastMCP) -> AsyncIterator[Any]:
