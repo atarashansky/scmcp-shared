@@ -8,14 +8,15 @@ auto_mcp = FastMCP("SmartMCP-select-Server")
 
 @auto_mcp.tool()
 def search_tool(
-    query: str= Field(description="The tasks or questions that needs to be solved using available tools")
+    task: str= Field(description="The tasks or questions that needs to be solved using available tools")
 ):
+    """search the tools that can be used to solve the  user's tasks or questions"""
     ctx = get_context()
     fastmcp = ctx.fastmcp
     all_tools = fastmcp._tool_manager._all_tools
     auto_tools = fastmcp._tool_manager._tools
     fastmcp._tool_manager._tools =  all_tools
-    query = f"<task>{query}</task>\n"
+    query = f"<task>{task}</task>\n"
     for name in all_tools:
         tool = all_tools[name]
         query += f"<Tool>\n<name>{name}</name>\n<description>{tool.description}</description>\n</Tool>\n"
@@ -35,6 +36,7 @@ async def run_tool(
     name: str= Field(description="The name of the tool to run"),  
     parameter: dict = Field(description="The parameters to pass to the tool")
 ):
+    """run the tool with the given name and parameters. Only start call the tool when last tool is finished."""
     ctx = get_context()
     fastmcp = ctx.fastmcp
     all_tools = fastmcp._tool_manager._all_tools
