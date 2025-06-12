@@ -120,12 +120,16 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 func_kwargs = filter_args(request, sc.pp.calculate_qc_metrics)
                 ads = get_ads()
                 adata = ads.get_adata(adinfo=adinfo)
+                if request.qc_vars:
+                    for var in request.qc_vars:
+                        if var not in adata.var.columns:
+                            return f"Cound find {var} in adata.var, consider to use mark_var tool to mark the variable"
                 func_kwargs["inplace"] = True
                 try:
                     sc.pp.calculate_qc_metrics(adata, **func_kwargs)
                     add_op_log(adata, sc.pp.calculate_qc_metrics, func_kwargs, adinfo)
                 except KeyError as e:
-                    raise KeyError(f"Cound find {e} in adata.var")
+                    raise KeyError(f"Cound find {e} in adata.var, consider to use mark_var tool to mark the variable")
                 return [generate_msg(adinfo, adata, ads)]
             except ToolError as e:
                 raise ToolError(e)
