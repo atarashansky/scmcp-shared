@@ -141,7 +141,6 @@ class BaseMCPManager:
                 asyncio.run(self.mcp.import_server(module_name, mcpi))
             else:
                 asyncio.run(self.mcp.import_server(module_name, mcpi().mcp))
-        asyncio.run(self.mcp.import_server("auto", auto_mcp))
 
     @asynccontextmanager
     async def adata_lifespan(self, server: FastMCP) -> AsyncIterator[Any]:
