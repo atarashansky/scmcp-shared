@@ -5,7 +5,6 @@ from typing import Optional, Union, List, Dict, Any, Literal
 class TSNEParam(BaseModel):
     """Input schema for the t-SNE dimensionality reduction tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     n_pcs: Optional[int] = Field(
         default=None,
         description="Number of PCs to use. If None, automatically determined.",
@@ -62,26 +61,30 @@ class TSNEParam(BaseModel):
 class UMAPParam(BaseModel):
     """Input schema for the UMAP dimensionality reduction tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     min_dist: Optional[float] = Field(
         default=0.5, description="Minimum distance between embedded points.", gt=0
     )
+
     spread: Optional[float] = Field(
         default=1.0, description="Scale of embedded points.", gt=0
     )
+
     n_components: Optional[int] = Field(
         default=2, description="Number of dimensions of the embedding.", gt=0
     )
+
     maxiter: Optional[int] = Field(
         default=None,
         description="Number of iterations (epochs) of the optimization.",
         gt=0,
     )
+
     alpha: Optional[float] = Field(
         default=1.0,
         description="Initial learning rate for the embedding optimization.",
         gt=0,
     )
+
     gamma: Optional[float] = Field(
         default=1.0, description="Weighting applied to negative samples.", gt=0
     )
@@ -138,7 +141,6 @@ class UMAPParam(BaseModel):
 class DrawGraphParam(BaseModel):
     """Input schema for the force-directed graph drawing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     layout: str = Field(
         default="fa",
         description="Graph layout algorithm ('fa', 'fr', 'kk', etc.)",
@@ -183,7 +185,6 @@ class DrawGraphParam(BaseModel):
 class DiffMapParam(BaseModel):
     """Input schema for the Diffusion Maps dimensionality reduction tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     n_comps: int = Field(
         default=15, description="The number of dimensions of the representation.", gt=0
     )
@@ -209,7 +210,6 @@ class DiffMapParam(BaseModel):
 class EmbeddingDensityParam(BaseModel):
     """Input schema for the embedding density calculation tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     basis: str = Field(
         default="umap",
         description="The embedding over which the density will be calculated. This embedded representation should be found in `adata.obsm['X_[basis]']`.",
@@ -240,35 +240,41 @@ class EmbeddingDensityParam(BaseModel):
 class LeidenParam(BaseModel):
     """Input schema for the Leiden clustering algorithm."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     resolution: Optional[float] = Field(
         default=1.0,
         description="A parameter value controlling the coarseness of the clustering. Higher values lead to more clusters.",
     )
+
     key_added: Optional[str] = Field(
         default="leiden",
         description="`adata.obs` key under which to add the cluster labels.",
     )
+
     directed: Optional[bool] = Field(
         default=None,
         description="Whether to treat the graph as directed or undirected.",
     )
+
     use_weights: Optional[bool] = Field(
         default=True,
         description="If `True`, edge weights from the graph are used in the computation (placing more emphasis on stronger edges).",
     )
+
     n_iterations: Optional[int] = Field(
         default=-1,
         description="How many iterations of the Leiden clustering algorithm to perform. -1 runs until optimal clustering.",
     )
+
     neighbors_key: Optional[str] = Field(
         default=None,
         description="Use neighbors connectivities as adjacency. If specified, leiden looks .obsp[.uns[neighbors_key]['connectivities_key']] for connectivities.",
     )
+
     obsp: Optional[str] = Field(
         default=None,
         description="Use .obsp[obsp] as adjacency. You can't specify both `obsp` and `neighbors_key` at the same time.",
     )
+
     flavor: Optional[Literal["leidenalg", "igraph"]] = Field(
         default="igraph", description="Which package's implementation to use."
     )
@@ -302,33 +308,40 @@ class LeidenParam(BaseModel):
 class LouvainParam(BaseModel):
     """Input schema for the Louvain clustering algorithm."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     resolution: Optional[float] = Field(
         default=None,
         description="For the default flavor ('vtraag') or for 'RAPIDS', you can provide a resolution (higher resolution means finding more and smaller clusters), which defaults to 1.0.",
     )
+
     random_state: int = Field(
         default=0, description="Change the initialization of the optimization."
     )
+
     key_added: str = Field(
         default="louvain", description="Key under which to add the cluster labels."
     )
+
     flavor: Literal["vtraag", "igraph", "rapids"] = Field(
         default="vtraag",
         description="Package for computing the clustering: 'vtraag' (default, more powerful), 'igraph' (built-in method), or 'rapids' (GPU accelerated).",
     )
+
     directed: bool = Field(
         default=True, description="Interpret the adjacency matrix as directed graph."
     )
+
     use_weights: bool = Field(default=False, description="Use weights from knn graph.")
+
     partition_kwargs: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Key word arguments to pass to partitioning, if 'vtraag' method is being used.",
     )
+
     neighbors_key: Optional[str] = Field(
         default=None,
         description="Use neighbors connectivities as adjacency. If specified, louvain looks .obsp[.uns[neighbors_key]['connectivities_key']] for connectivities.",
     )
+
     obsp: Optional[str] = Field(
         default=None,
         description="Use .obsp[obsp] as adjacency. You can't specify both `obsp` and `neighbors_key` at the same time.",
@@ -363,7 +376,6 @@ class LouvainParam(BaseModel):
 class DendrogramParam(BaseModel):
     """Input schema for the hierarchical clustering dendrogram tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     groupby: str = Field(
         ...,  # Required field
         description="The categorical observation annotation to use for grouping.",
@@ -437,7 +449,6 @@ class DendrogramParam(BaseModel):
 class DPTParam(BaseModel):
     """Input schema for the Diffusion Pseudotime (DPT) tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     n_dcs: int = Field(
         default=10, description="The number of diffusion components to use.", gt=0
     )
@@ -484,7 +495,6 @@ class DPTParam(BaseModel):
 class PAGAParam(BaseModel):
     """Input schema for the Partition-based Graph Abstraction (PAGA) tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     groups: Optional[str] = Field(
         default=None,
         description="Key for categorical in adata.obs. You can pass your predefined groups by choosing any categorical annotation of observations. Default: The first present key of 'leiden' or 'louvain'.",
@@ -512,22 +522,21 @@ class PAGAParam(BaseModel):
 class IngestParam(BaseModel):
     """Input schema for the ingest tool that maps labels and embeddings from reference data to new data."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
-    adata_ref: str = Field(
-        ..., description="The reference AnnData object variable name."
-    )
     obs: Optional[Union[str, List[str]]] = Field(
         default=None,
         description="Labels' keys in adata_ref.obs which need to be mapped to adata.obs (inferred for observation of adata).",
     )
+
     embedding_method: Union[str, List[str]] = Field(
         default=["umap", "pca"],
         description="Embeddings in adata_ref which need to be mapped to adata. The only supported values are 'umap' and 'pca'.",
     )
+
     labeling_method: str = Field(
         default="knn",
         description="The method to map labels in adata_ref.obs to adata.obs. The only supported value is 'knn'.",
     )
+
     neighbors_key: Optional[str] = Field(
         default=None,
         description="If specified, ingest looks adata_ref.uns[neighbors_key] for neighbors settings and uses the corresponding distances.",
@@ -566,7 +575,6 @@ class IngestParam(BaseModel):
 class RankGenesGroupsParam(BaseModel):
     """Input schema for the rank_genes_groups tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     groupby: str = Field(
         ...,  # Required field
         description="The key of the observations grouping to consider.",
@@ -645,38 +653,44 @@ class RankGenesGroupsParam(BaseModel):
 class FilterRankGenesGroupsParam(BaseModel):
     """Input schema for filtering ranked genes groups."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     key: Optional[str] = Field(
         default=None,
         description="Key from adata.uns where rank_genes_groups output is stored.",
     )
+
     groupby: Optional[str] = Field(
         default=None, description="The key of the observations grouping to consider."
     )
+
     use_raw: Optional[bool] = Field(
         default=None, description="Use raw attribute of adata if present."
     )
+
     key_added: str = Field(
         default="rank_genes_groups_filtered",
         description="The key in adata.uns information is saved to.",
     )
+
     min_in_group_fraction: float = Field(
         default=0.25,
         description="Minimum fraction of cells expressing the gene within the group.",
         ge=0.0,
         le=1.0,
     )
+
     min_fold_change: Union[int, float] = Field(
         default=1,
         description="Minimum fold change for a gene to be considered significant.",
         gt=0,
     )
+
     max_out_group_fraction: float = Field(
         default=0.5,
         description="Maximum fraction of cells expressing the gene outside the group.",
         ge=0.0,
         le=1.0,
     )
+
     compare_abs: bool = Field(
         default=False,
         description="If True, compare absolute values of log fold change with min_fold_change.",
@@ -700,33 +714,34 @@ class FilterRankGenesGroupsParam(BaseModel):
 class MarkerGeneOverlapParam(BaseModel):
     """Input schema for the marker gene overlap tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
-    adata_ref: str = Field(
-        ..., description="The reference AnnData object variable name."
-    )
     key: str = Field(
         default="rank_genes_groups",
         description="The key in adata.uns where the rank_genes_groups output is stored.",
     )
+
     method: str = Field(
         default="overlap_count",
         description="Method to calculate marker gene overlap: 'overlap_count', 'overlap_coef', or 'jaccard'.",
     )
+
     normalize: Optional[Literal["reference", "data"]] = Field(
         default=None,
         description="Normalization option for the marker gene overlap output. Only applicable when method is 'overlap_count'.",
     )
+
     top_n_markers: Optional[int] = Field(
         default=None,
         description="The number of top data-derived marker genes to use. By default the top 100 marker genes are used.",
         gt=0,
     )
+
     adj_pval_threshold: Optional[float] = Field(
         default=None,
         description="A significance threshold on the adjusted p-values to select marker genes.",
         gt=0,
         le=1.0,
     )
+
     key_added: str = Field(
         default="marker_gene_overlap",
         description="Name of the .uns field that will contain the marker overlap scores.",
@@ -774,24 +789,27 @@ class MarkerGeneOverlapParam(BaseModel):
 class ScoreGenesParam(BaseModel):
     """Input schema for the score_genes tool that calculates gene scores based on average expression."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
-    gene_list: List[str] = Field(..., description="List of genes to score.")
     ctrl_size: int = Field(
         default=50,
         description="Number of reference genes to be sampled from each bin.",
         gt=0,
     )
+
     gene_pool: Optional[List[str]] = Field(
         default=None,
         description="Genes for sampling the reference set. Default is all genes.",
     )
+
     n_bins: int = Field(
         default=25, description="Number of expression level bins for sampling.", gt=0
     )
+
     score_name: str = Field(
         default="score", description="Name of the field to be added in .obs."
     )
+
     random_state: int = Field(default=0, description="The random seed for sampling.")
+
     use_raw: Optional[bool] = Field(
         default=None,
         description="Whether to use raw attribute of adata. Defaults to True if .raw is present.",
@@ -808,7 +826,6 @@ class ScoreGenesParam(BaseModel):
 class ScoreGenesCellCycleParam(BaseModel):
     """Input schema for the score_genes_cell_cycle tool that scores cell cycle genes."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     s_genes: List[str] = Field(
         ...,  # Required field
         description="List of genes associated with S phase.",
@@ -852,7 +869,6 @@ class ScoreGenesCellCycleParam(BaseModel):
 class PCAParam(BaseModel):
     """Input schema for the PCA preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     n_comps: Optional[int] = Field(
         default=None,
         description="Number of principal components to compute. Defaults to 50 or 1 - minimum dimension size.",
@@ -875,9 +891,10 @@ class PCAParam(BaseModel):
         default=None,
         description="Boolean mask or string referring to var column for subsetting genes.",
     )
-    dtype: str = Field(
-        default="float32", description="Numpy data type string for the result."
-    )
+    # dtype: str = Field(
+    #     default="float32",
+    #     description="Numpy data type string for the result."
+    # )
     chunked: bool = Field(
         default=False, description="If True, perform an incremental PCA on segments."
     )

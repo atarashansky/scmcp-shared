@@ -5,10 +5,9 @@ from typing import Literal
 import numpy as np
 
 
-class FilterCellsParam(BaseModel):
+class FilterCells(BaseModel):
     """Input schema for the filter_cells preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     min_counts: Optional[int] = Field(
         default=None,
         description="Minimum number of counts required for a cell to pass filtering.",
@@ -31,15 +30,15 @@ class FilterCellsParam(BaseModel):
 
     @field_validator("min_counts", "min_genes", "max_counts", "max_genes")
     def validate_positive_integers(cls, v: Optional[int]) -> Optional[int]:
+        """验证整数参数为正数"""
         if v is not None and v <= 0:
-            raise ValueError("must be positive_integers")
+            raise ValueError("过滤参数必须是正整数")
         return v
 
 
-class FilterGenesParam(BaseModel):
+class FilterGenes(BaseModel):
     """Input schema for the filter_genes preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     min_counts: Optional[int] = Field(
         default=None,
         description="Minimum number of counts required for a gene to pass filtering.",
@@ -62,6 +61,7 @@ class FilterGenesParam(BaseModel):
 
     @field_validator("min_counts", "min_cells", "max_counts", "max_cells")
     def validate_positive_integers(cls, v: Optional[int]) -> Optional[int]:
+        """验证整数参数为正数"""
         if v is not None and v <= 0:
             raise ValueError("must be positive_integers")
         return v
@@ -70,7 +70,6 @@ class FilterGenesParam(BaseModel):
 class SubsetCellParam(BaseModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     obs_key: Optional[str] = Field(
         default=None,
         description="Key in adata.obs to use for subsetting observations/cells.",
@@ -108,7 +107,6 @@ class SubsetCellParam(BaseModel):
 class SubsetGeneParam(BaseModel):
     """Input schema for subsetting AnnData objects based on various criteria."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     min_counts: Optional[int] = Field(
         default=None,
         description="Minimum number of counts required for a gene to pass filtering.",
@@ -145,8 +143,6 @@ class SubsetGeneParam(BaseModel):
 
 class CalculateQCMetrics(BaseModel):
     """Input schema for the calculate_qc_metrics preprocessing tool."""
-
-    adata: str = Field(..., description="The AnnData object variable name.")
 
     expr_type: str = Field(default="counts", description="Name of kind of values in X.")
 
@@ -194,7 +190,6 @@ class CalculateQCMetrics(BaseModel):
 class Log1PParam(BaseModel):
     """Input schema for the log1p preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     base: Optional[Union[int, float]] = Field(
         default=None,
         description="Base of the logarithm. Natural logarithm is used by default.",
@@ -227,7 +222,6 @@ class Log1PParam(BaseModel):
 class HighlyVariableGenesParam(BaseModel):
     """Input schema for the highly_variable_genes preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     layer: Optional[str] = Field(
         default=None,
         description="If provided, use adata.layers[layer] for expression values.",
@@ -294,7 +288,6 @@ class HighlyVariableGenesParam(BaseModel):
 class RegressOutParam(BaseModel):
     """Input schema for the regress_out preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     keys: Union[str, List[str]] = Field(
         description="Keys for observation annotation on which to regress on."
     )
@@ -325,7 +318,6 @@ class RegressOutParam(BaseModel):
 class ScaleParam(BaseModel):
     """Input schema for the scale preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     zero_center: bool = Field(
         default=True,
         description="If False, omit zero-centering variables to handle sparse input efficiently.",
@@ -360,7 +352,6 @@ class ScaleParam(BaseModel):
 class CombatParam(BaseModel):
     """Input schema for the combat batch effect correction tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     key: str = Field(
         default="batch",
         description="Key to a categorical annotation from adata.obs that will be used for batch effect removal.",
@@ -390,7 +381,6 @@ class CombatParam(BaseModel):
 class ScrubletParam(BaseModel):
     """Input schema for the scrublet doublet prediction tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     adata_sim: Optional[str] = Field(
         default=None,
         description="Optional path to AnnData object with simulated doublets.",
@@ -501,7 +491,6 @@ class ScrubletParam(BaseModel):
 class NeighborsParam(BaseModel):
     """Input schema for the neighbors graph construction tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     n_neighbors: int = Field(
         default=15,
         description="Size of local neighborhood used for manifold approximation.",
@@ -571,7 +560,6 @@ class NeighborsParam(BaseModel):
 class NormalizeTotalParam(BaseModel):
     """Input schema for the normalize_total preprocessing tool."""
 
-    adata: str = Field(..., description="The AnnData object variable name.")
     target_sum: Optional[float] = Field(
         default=None,
         description="If None, after normalization, each cell has a total count equal to the median of total counts before normalization. If a number is provided, each cell will have this total count after normalization.",
@@ -625,276 +613,4 @@ class NormalizeTotalParam(BaseModel):
         """Validate max_fraction is between 0 and 1"""
         if v <= 0 or v > 1:
             raise ValueError("max_fraction must be between 0 and 1")
-        return v
-
-
-class BBKNNParam(BaseModel):
-    """Input schema for the bbknn (batch balanced kNN) preprocessing tool."""
-
-    adata: str = Field(..., description="The AnnData object variable name.")
-
-    batch_key: str = Field(
-        default="batch",
-        description="adata.obs column name discriminating between your batches.",
-    )
-
-    use_rep: str = Field(
-        default="X_pca",
-        description="The dimensionality reduction in .obsm to use for neighbour detection. Defaults to PCA.",
-    )
-
-    approx: bool = Field(
-        default=True,
-        description="If True, use approximate neighbour finding - annoy or PyNNDescent. This results in a quicker run time for large datasets while also potentially increasing the degree of batch correction.",
-    )
-
-    use_annoy: bool = Field(
-        default=True,
-        description="Only used when approx=True. If True, will use annoy for neighbour finding. If False, will use pyNNDescent instead.",
-    )
-
-    metric: str = Field(
-        default="euclidean",
-        description="What distance metric to use. The options depend on the choice of neighbour algorithm.",
-    )
-
-    neighbors_within_batch: int = Field(
-        default=3,
-        description="How many top neighbours to report for each batch; total number of neighbours in the initial k-nearest-neighbours computation will be this number times the number of batches.",
-        gt=0,
-    )
-
-    n_pcs: int = Field(
-        default=50,
-        description="How many dimensions (in case of PCA, principal components) to use in the analysis.",
-        gt=0,
-    )
-
-    trim: Optional[int] = Field(
-        default=None,
-        description="Trim the neighbours of each cell to these many top connectivities. May help with population independence and improve the tidiness of clustering. If None, sets the parameter value automatically to 10 times neighbors_within_batch times the number of batches. Set to 0 to skip.",
-        ge=0,
-    )
-
-    annoy_n_trees: int = Field(
-        default=10,
-        description="Only used with annoy neighbour identification. The number of trees to construct in the annoy forest. More trees give higher precision when querying, at the cost of increased run time and resource intensity.",
-        gt=0,
-    )
-
-    pynndescent_n_neighbors: int = Field(
-        default=30,
-        description="Only used with pyNNDescent neighbour identification. The number of neighbours to include in the approximate neighbour graph. More neighbours give higher precision when querying, at the cost of increased run time and resource intensity.",
-        gt=0,
-    )
-
-    pynndescent_random_state: int = Field(
-        default=0,
-        description="Only used with pyNNDescent neighbour identification. The RNG seed to use when creating the graph.",
-    )
-
-    use_faiss: bool = Field(
-        default=True,
-        description="If approx=False and the metric is 'euclidean', use the faiss package to compute nearest neighbours if installed. This improves performance at a minor cost to numerical precision as faiss operates on float32.",
-    )
-
-    set_op_mix_ratio: float = Field(
-        default=1.0,
-        description="UMAP connectivity computation parameter, float between 0 and 1, controlling the blend between a connectivity matrix formed exclusively from mutual nearest neighbour pairs (0) and a union of all observed neighbour relationships with the mutual pairs emphasised (1).",
-        ge=0.0,
-        le=1.0,
-    )
-
-    local_connectivity: int = Field(
-        default=1,
-        description="UMAP connectivity computation parameter, how many nearest neighbors of each cell are assumed to be fully connected (and given a connectivity value of 1).",
-        gt=0,
-    )
-
-    @field_validator(
-        "neighbors_within_batch",
-        "n_pcs",
-        "annoy_n_trees",
-        "pynndescent_n_neighbors",
-        "local_connectivity",
-    )
-    def validate_positive_integers(cls, v: int) -> int:
-        """Validate positive integers"""
-        if v <= 0:
-            raise ValueError("must be a positive integer")
-        return v
-
-    @field_validator("trim")
-    def validate_trim(cls, v: Optional[int]) -> Optional[int]:
-        """Validate trim is non-negative if provided"""
-        if v is not None and v < 0:
-            raise ValueError("trim must be non-negative")
-        return v
-
-    @field_validator("set_op_mix_ratio")
-    def validate_set_op_mix_ratio(cls, v: float) -> float:
-        """Validate set_op_mix_ratio is between 0 and 1"""
-        if v < 0 or v > 1:
-            raise ValueError("set_op_mix_ratio must be between 0 and 1")
-        return v
-
-    @field_validator("metric")
-    def validate_metric(cls, v: str) -> str:
-        """Validate metric is supported"""
-        valid_metrics = [
-            "euclidean",
-            "l2",
-            "sqeuclidean",
-            "manhattan",
-            "taxicab",
-            "l1",
-            "chebyshev",
-            "linfinity",
-            "linfty",
-            "linf",
-            "minkowski",
-            "seuclidean",
-            "standardised_euclidean",
-            "wminkowski",
-            "angular",
-            "hamming",
-        ]
-        if v.lower() not in valid_metrics:
-            raise ValueError(f"metric must be one of {valid_metrics}")
-        return v.lower()
-
-
-class HarmonyIntegrateParam(BaseModel):
-    """Input schema for the harmony_integrate preprocessing tool."""
-
-    adata: str = Field(..., description="The AnnData object variable name.")
-
-    key: Union[str, List[str]] = Field(
-        description="The name of the column in adata.obs that differentiates among experiments/batches. To integrate over two or more covariates, you can pass multiple column names as a list."
-    )
-
-    basis: str = Field(
-        default="X_pca",
-        description="The name of the field in adata.obsm where the PCA table is stored. Defaults to 'X_pca', which is the default for sc.pp.pca().",
-    )
-
-    adjusted_basis: str = Field(
-        default="X_pca_harmony",
-        description="The name of the field in adata.obsm where the adjusted PCA table will be stored after running this function. Defaults to X_pca_harmony.",
-    )
-
-    theta: float = Field(
-        default=2.0,
-        description="Diversity clustering penalty parameter. Theta = 0 does not encourage any diversity. Larger values of theta result in more diverse clusters.",
-        gt=0,
-    )
-
-    lambda_: float = Field(
-        default=1.0,
-        description="Ridge regression penalty parameter. Lambda = 0 gives no regularization. Larger values of lambda result in more regularization.",
-        ge=0,
-    )
-
-    sigma: float = Field(
-        default=0.1,
-        description="Width of soft kmeans clusters. Sigma scales the distance from a cell to cluster centroids. Larger values of sigma result in cells assigned to more clusters. Each cell is assigned to clusters with probability proportional to exp(-distance^2 / sigma^2).",
-        gt=0,
-    )
-
-    nclust: Optional[int] = Field(
-        default=None,
-        description="Number of clusters in Harmony. If None, estimated automatically. If provided, this overrides the theta parameter.",
-        gt=0,
-    )
-
-    tau: float = Field(
-        default=0.0,
-        description="Protection against overclustering small datasets with rare cell types. tau is the expected number of cells per cluster.",
-        ge=0,
-    )
-
-    block_size: float = Field(
-        default=0.05,
-        description="What proportion of cells to update during clustering. Between 0 to 1, e.g. 0.05 updates 5% of cells per iteration.",
-        gt=0,
-        le=1,
-    )
-
-    max_iter_harmony: int = Field(
-        default=10,
-        description="Maximum number of rounds to run Harmony. One round of Harmony involves one clustering and one correction step.",
-        gt=0,
-    )
-
-    max_iter_kmeans: int = Field(
-        default=20,
-        description="Maximum number of rounds to run clustering at each round of Harmony. If at least k < nclust clusters contain 1 or fewer cells, then stop early.",
-        gt=0,
-    )
-
-    epsilon_cluster: float = Field(
-        default=1e-5,
-        description="Convergence tolerance for clustering round of Harmony. Set to -Inf to never stop early.",
-        gt=0,
-    )
-
-    epsilon_harmony: float = Field(
-        default=1e-4,
-        description="Convergence tolerance for Harmony. Set to -Inf to never stop early.",
-        gt=0,
-    )
-
-    random_state: int = Field(default=0, description="Random seed for reproducibility.")
-
-    verbose: bool = Field(
-        default=True, description="Whether to print progress messages."
-    )
-
-    @field_validator("key")
-    def validate_key(cls, v: Union[str, List[str]]) -> Union[str, List[str]]:
-        """Ensure key is either a string or list of strings"""
-        if isinstance(v, str):
-            if not v.strip():
-                raise ValueError("key cannot be empty")
-            return v
-        elif isinstance(v, list) and all(
-            isinstance(item, str) and item.strip() for item in v
-        ):
-            return v
-        raise ValueError("key must be a non-empty string or list of non-empty strings")
-
-    @field_validator("basis", "adjusted_basis")
-    def validate_basis_names(cls, v: str) -> str:
-        """Validate basis names are not empty"""
-        if not v.strip():
-            raise ValueError("basis and adjusted_basis cannot be empty")
-        return v
-
-    @field_validator(
-        "theta",
-        "lambda_",
-        "sigma",
-        "tau",
-        "block_size",
-        "epsilon_cluster",
-        "epsilon_harmony",
-    )
-    def validate_positive_floats(cls, v: float) -> float:
-        """Validate positive floats"""
-        if v < 0:
-            raise ValueError("must be non-negative")
-        return v
-
-    @field_validator("max_iter_harmony", "max_iter_kmeans")
-    def validate_positive_integers(cls, v: int) -> int:
-        """Validate positive integers"""
-        if v <= 0:
-            raise ValueError("must be a positive integer")
-        return v
-
-    @field_validator("nclust")
-    def validate_nclust(cls, v: Optional[int]) -> Optional[int]:
-        """Validate nclust is positive if provided"""
-        if v is not None and v <= 0:
-            raise ValueError("nclust must be positive if provided")
         return v

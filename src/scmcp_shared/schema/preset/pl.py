@@ -65,8 +65,8 @@ class FigureSizeMixin:
 class BaseVisualizationParam(
     BaseModel, LegendMixin, ColorMappingMixin, FigureSizeMixin
 ):
-    adata: str = Field(..., description="The AnnData object variable name.")
     """基础可视化模型，包含所有可视化工具共享的字段"""
+
     pass
 
 

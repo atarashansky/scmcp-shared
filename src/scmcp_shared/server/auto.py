@@ -6,16 +6,18 @@ from pydantic import Field
 auto_mcp = FastMCP("SmartMCP-select-Server")
 
 
-@auto_mcp.tool()
+@auto_mcp.tool(tags={"auto"})
 def search_tool(
-    task: str= Field(description="The tasks or questions that needs to be solved using available tools")
+    task: str = Field(
+        description="The tasks or questions that needs to be solved using available tools"
+    ),
 ):
-    """search the tools that can be used to solve the  user's tasks or questions"""
+    """search the tools and get tool parameters that can be used to solve the  user's tasks or questions"""
     ctx = get_context()
     fastmcp = ctx.fastmcp
     all_tools = fastmcp._tool_manager._all_tools
     auto_tools = fastmcp._tool_manager._tools
-    fastmcp._tool_manager._tools =  all_tools
+    fastmcp._tool_manager._tools = all_tools
     query = f"<task>{task}</task>\n"
     for name in all_tools:
         tool = all_tools[name]
@@ -31,17 +33,17 @@ def search_tool(
     return tool_list
 
 
-@auto_mcp.tool()
+@auto_mcp.tool(tags={"auto"})
 async def run_tool(
-    name: str= Field(description="The name of the tool to run"),  
-    parameter: dict = Field(description="The parameters to pass to the tool")
+    name: str = Field(description="The name of the tool to run"),
+    parameter: dict = Field(description="The parameters to pass to the tool"),
 ):
     """run the tool with the given name and parameters. Only start call the tool when last tool is finished."""
     ctx = get_context()
     fastmcp = ctx.fastmcp
     all_tools = fastmcp._tool_manager._all_tools
     auto_tools = fastmcp._tool_manager._tools
-    fastmcp._tool_manager._tools =  all_tools
+    fastmcp._tool_manager._tools = all_tools
 
     try:
         result = await fastmcp._tool_manager.call_tool(name, parameter)
