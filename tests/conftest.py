@@ -6,6 +6,7 @@ from scmcp_shared.server.preset import ScanpyPreprocessingMCP
 from scmcp_shared.server.preset import ScanpyToolsMCP
 from scmcp_shared.server.preset import ScanpyPlottingMCP
 from scmcp_shared.server.preset import ScanpyUtilMCP
+from scmcp_shared.server.auto import auto_mcp
 
 
 class ScanpyMCPManager(BaseMCPManager):
@@ -19,6 +20,7 @@ class ScanpyMCPManager(BaseMCPManager):
             "tl": ScanpyToolsMCP().mcp,
             "pl": ScanpyPlottingMCP().mcp,
             "ul": ScanpyUtilMCP().mcp,
+            "auto": auto_mcp,
         }
 
 
