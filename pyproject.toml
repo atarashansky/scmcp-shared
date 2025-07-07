@@ -26,6 +26,8 @@ dependencies = [
     "leidenalg",
     "mcp>=1.8.0",
     "fastmcp>=2.7.0",
+    "openai",
+    "lancedb",
     "agno",
     "nest_asyncio",
     "abcoder"
