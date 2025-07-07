@@ -15,9 +15,9 @@ async def test_read_and_write(mcp):
     async with Client(mcp) as client:
         # tools = await client.list_tools()
         # client._tools = tools
-        print(mcp._tool_manager._tools, 123)
         result = await client.call_tool("io_read", {"request": {"filename": test_dir}})
-        assert "AnnData" in result[0].text
+        print(result)
+        assert "AnnData" in result.content[0].text
 
         result = await client.call_tool("io_write", {"request": {"filename": outfile}})
         assert outfile.exists()

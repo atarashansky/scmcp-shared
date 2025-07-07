@@ -13,4 +13,4 @@ async def test_tool_selection(mcp):
     """
     async with Client(mcp) as client:
         result = await client.call_tool("auto_search_tool", {"task": task})
-        assert "io_read" in result[0].text
+        assert "io_read" in result.content[0].text
