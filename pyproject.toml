@@ -30,7 +30,8 @@ dependencies = [
     "lancedb",
     "agno",
     "nest_asyncio",
-    "abcoder"
+    "abcoder",
+    "requests"
 ]
 
 [build-system]
