@@ -2,13 +2,20 @@ name: test package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      MODEL: ${{ vars.MODEL }}
+      BASE_URL: ${{ vars.BASE_URL }}
+      API_KEY: ${{ secrets.API_KEY }}
+      EMBEDDER_MODEL: ${{ vars.EMBEDDER_MODEL }}
+      EMBEDDER_BASE_URL: ${{ vars.EMBEDDER_BASE_URL }}
+      EMBEDDER_API_KEY: ${{ secrets.EMBEDDER_API_KEY }}
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
@@ -31,4 +38,3 @@ jobs:
 
       - name: Run pytest
         run: uv run --no-sync pytest
-
