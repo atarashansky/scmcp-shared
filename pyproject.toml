@@ -27,7 +27,6 @@ dependencies = [
     "mcp>=1.8.0",
     "fastmcp>=2.7.0",
     "nest_asyncio",
-    "instructor>=1.8.3",
     "abcoder"
 ]
 
