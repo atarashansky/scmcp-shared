@@ -1,6 +1,4 @@
-import instructor
-from openai import OpenAI
-from scmcp_shared.schema.tool import ToolList
+from .schema.tool import ToolList
 import os
 
 
@@ -37,22 +35,13 @@ def rag_agent(task, software=None):
 
 
 def select_tool(query):
-    API_KEY = os.environ.get("API_KEY", None)
-    BASE_URL = os.environ.get("BASE_URL", None)
-    MODEL = os.environ.get("MODEL", None)
-
-    client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
-    client = instructor.from_openai(client)
-
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": "you are a bioinformatician, you are given a task and a list of tools, you need to select the most directly relevant tools to use to solve the task",
-            },
-            {"role": "user", "content": query},
-        ],
+    agent = Agent(
+        model=model,
         response_model=ToolList,
+        use_json_mode=True,
+        instructions="""
+        you are a bioinformatician, you are given a task and a list of tools, you need to select the most directly relevant tools to use to solve the task
+        """,
     )
-    return response.tools
+    rep = agent.run(query)
+    return rep.content

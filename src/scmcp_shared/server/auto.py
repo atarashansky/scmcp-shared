@@ -15,17 +15,19 @@ def search_tool(
     """search the tools and get tool parameters that can be used to solve the  user's tasks or questions"""
     ctx = get_context()
     fastmcp = ctx.fastmcp
-    all_tools = fastmcp._tool_manager._all_tools
+    if hasattr(fastmcp._tool_manager, "_all_tools"):
+        all_tools = fastmcp._tool_manager._all_tools
+    else:
+        all_tools = fastmcp._tool_manager._tools
     auto_tools = fastmcp._tool_manager._tools
     fastmcp._tool_manager._tools = all_tools
     query = f"<task>{task}</task>\n"
     for name in all_tools:
         tool = all_tools[name]
         query += f"<Tool>\n<name>{name}</name>\n<description>{tool.description}</description>\n</Tool>\n"
-
     results = select_tool(query)
     tool_list = []
-    for tool in results:
+    for tool in results.tools:
         tool = tool.model_dump()
         tool["parameters"] = all_tools[tool["name"]].parameters
         tool_list.append(tool)
