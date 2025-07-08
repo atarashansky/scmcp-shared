@@ -9,5 +9,5 @@ rag_mcp = FastMCP("RAG-Server")
 def retrieve_knowledge(
     task: str = Field(description="The tasks or questions that needs to be solved"),
 ):
-    """search function and parameters that can be used to solve the user's tasks or questions"""
+    """search guide or code example that can be used to solve the user's tasks or questions"""
     return rag_agent(task, software="scmcp")
