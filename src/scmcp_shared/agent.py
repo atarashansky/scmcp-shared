@@ -4,7 +4,7 @@ import os
 
 from agno.agent import Agent
 from agno.models.openai import OpenAILike
-from scmcp_shared.kb import load_kb
+from .kb import load_kb
 
 model = OpenAILike(
     id=os.getenv("MODEL"),
@@ -13,13 +13,16 @@ model = OpenAILike(
 )
 
 
-def rag_agent(task, software=None):
+def rag_agent(task, software="scmcp"):
     knowledge_base = load_kb(software=software)
     agent = Agent(
         model=model,
         knowledge=knowledge_base,
         show_tool_calls=True,
         search_knowledge=True,
+        instructions="""
+        MUST query the knowledge base, and return the code example that can be used to solve the task.
+        """,
     )
     query = f"""
     <task>
