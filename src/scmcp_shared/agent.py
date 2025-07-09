@@ -22,16 +22,24 @@ def rag_agent(task, software="scmcp"):
         search_knowledge=True,
         instructions="""
         MUST query the knowledge base, and return the code example that can be used to solve the task.
+        Query the knowledge base to provide several complete code snippets/guides for input TASK resolution. The return format should be
+        <code_example>
+            <demo1>
+                [code_example1]
+            </demo1>
+            <demo2>
+                [code_example2]
+            </demo2>
+            ...
+        </code_example>
+        
+        if there are multiple code examples, you should score them based on the relevance and match to the task, and rank them.
         """,
     )
     query = f"""
     <task>
     {task}
     </task>
-    查询知识库，给出一个用于解决任务的代码示例。返回结果格式为：
-    <code_example>
-        [code_example]
-    </code_example>
     """
     rep = agent.run(query)
     return rep.content
