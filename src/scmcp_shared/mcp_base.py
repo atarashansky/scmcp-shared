@@ -9,47 +9,6 @@ from typing import Optional, List, Any
 from abcoder.backend import NotebookManager
 
 
-# class BaseMCP:
-#     """Base class for all Scanpy MCP classes."""
-
-#     def __init__(self, name: str, instructions=None, lifespan=None, include_tools: list = None, exclude_tools: list = None, AdataInfo = AdataInfo):
-#         """
-#         Initialize BaseMCP with optional tool filtering.
-
-#         Args:
-#             name (str): Name of the MCP server
-#             include_tools (list, optional): List of tool names to include. If None, all tools are included.
-#             exclude_tools (list, optional): List of tool names to exclude. If None, no tools are excluded.
-#             AdataInfo: The AdataInfo class to use for type annotations.
-#         """
-#         self.mcp = FastMCP(name, instructions=instructions, lifespan=lifespan)
-#         self.include_tools = include_tools
-#         self.exclude_tools = exclude_tools
-#         self.AdataInfo = AdataInfo
-#         self._register_tools()
-
-#     def _register_tools(self):
-#         """Register all tool methods with the FastMCP instance based on include/exclude filters"""
-#         # Get all methods of the class
-#         methods = inspect.getmembers(self, predicate=inspect.ismethod)
-
-#         # Filter methods that start with _tool_
-#         tool_methods = [tl_method() for name, tl_method in methods if name.startswith('_tool_')]
-
-#         # Filter tools based on include/exclude lists
-#         if self.include_tools is not None:
-#             tool_methods = [tl for tl in tool_methods if tl.name in self.include_tools]
-
-#         if self.exclude_tools is not None:
-#             tool_methods = [tl for tl in tool_methods if tl.name not in self.exclude_tools]
-
-#         # Register filtered tools
-#         for tool in tool_methods:
-#             # Get the function returned by the tool method
-#             if tool is not None:
-#                 self.mcp.add_tool(tool)
-
-
 class BaseMCP:
     """Base class for all Scanpy MCP classes."""
 

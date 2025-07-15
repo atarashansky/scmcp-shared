@@ -1,12 +1,13 @@
 import pytest
 from scmcp_shared.backend import AdataManager
-from scmcp_shared.mcp_base import BaseMCPManager
+from scmcp_shared.mcp_base import BaseMCPManager, NotebookManager
 from scmcp_shared.server.preset import ScanpyIOMCP
 from scmcp_shared.server.preset import ScanpyPreprocessingMCP
 from scmcp_shared.server.preset import ScanpyToolsMCP
 from scmcp_shared.server.preset import ScanpyPlottingMCP
 from scmcp_shared.server.preset import ScanpyUtilMCP
 from scmcp_shared.server.auto import auto_mcp
+from scmcp_shared.server.code import nb_mcp
 
 
 class ScanpyMCPManager(BaseMCPManager):
@@ -21,9 +22,16 @@ class ScanpyMCPManager(BaseMCPManager):
             "pl": ScanpyPlottingMCP().mcp,
             "ul": ScanpyUtilMCP().mcp,
             "auto": auto_mcp,
+            "nb": nb_mcp,
         }
 
 
 @pytest.fixture
 def mcp():
     return ScanpyMCPManager("scmcp", backend=AdataManager).mcp
+
+
+@pytest.fixture
+def nb_mcp_fixture():
+    mcp = ScanpyMCPManager("scmcp", include_tags=["nb"], backend=NotebookManager).mcp
+    return mcp
