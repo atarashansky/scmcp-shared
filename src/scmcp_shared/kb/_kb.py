@@ -107,3 +107,19 @@ def load_kb(software=None, auto_download=True, download_source="huggingface"):
     )
 
     return knowledge_base
+
+
+def ls_workflows():
+    """list all workflows"""
+    workflows_path = Path(__file__).parent / "docs" / "workflow"
+    workflows = list(workflows_path.glob("*.md"))
+    return [workflow.name for workflow in workflows]
+
+
+def read_workflow(filename: str):
+    """read a workflow"""
+    workflows_path = Path(__file__).parent / "docs" / "workflow"
+    print(workflows_path)
+    workflow = workflows_path / f"{filename}"
+    with open(workflow, "r") as f:
+        return f.read()
