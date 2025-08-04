@@ -51,7 +51,9 @@ def select_tool(query):
         response_model=ToolList,
         use_json_mode=True,
         instructions="""
-        you are a bioinformatician, you are given a task and a list of tools, you need to select the most directly relevant tools to use to solve the task
+        you are a bioinformatician, you are given a task and a list of tools, you need to select the most directly relevant tools to use to solve the task，
+        if the task is not related to the tools, you should return an empty list.
+        if there are multiple tools that are related to the task, you should rank them based on the relevance and match to the task.
         """,
     )
     rep = agent.run(query)
