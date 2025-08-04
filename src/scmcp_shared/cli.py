@@ -101,12 +101,17 @@ class MCPCLI:
             if args.run_mode == "code":
                 backend = NotebookManager
                 self.mcp = self.manager(
-                    self.name, include_tags=["nb", "rag"], backend=backend
+                    self.name,
+                    include_tags=["nb", "rag", "kb", "util"],
+                    backend=backend,
                 ).mcp
             else:
                 backend = AdataManager
                 self.mcp = self.manager(
-                    self.name, include_modules=modules, backend=backend
+                    self.name,
+                    include_modules=modules,
+                    backend=backend,
+                    exclude_tags=["nb", "rag", "kb", "util"],
                 ).mcp
                 all_tools = self.mcp._tool_manager._tools
                 auto_tools = {
