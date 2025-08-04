@@ -14,6 +14,8 @@ def search_tool(
 ):
     """search the tools and get tool parameters that can be used to solve the  user's tasks or questions"""
     ctx = get_context()
+    ads = ctx.request_context.lifespan_context
+    adata = ads.get_adata()
     fastmcp = ctx.fastmcp
     if hasattr(fastmcp._tool_manager, "_all_tools"):
         all_tools = fastmcp._tool_manager._all_tools
@@ -21,7 +23,12 @@ def search_tool(
         all_tools = fastmcp._tool_manager._tools
     auto_tools = fastmcp._tool_manager._tools
     fastmcp._tool_manager._tools = all_tools
-    query = f"<task>{task}</task>\n"
+    query = f"""
+    <adata>
+        {str(adata)}
+    </adata>
+    <task>{task}</task>\n
+    """
     for name in all_tools:
         tool = all_tools[name]
         query += f"<Tool>\n<name>{name}</name>\n<description>{tool.description}</description>\n</Tool>\n"
@@ -52,5 +59,5 @@ async def run_tool(
     except Exception as e:
         fastmcp._tool_manager._tools = auto_tools
         result = {"error": str(e)}
-
+    fastmcp._tool_manager._tools = auto_tools
     return result
