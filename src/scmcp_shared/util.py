@@ -139,9 +139,7 @@ async def get_figure(request):
     figure_path = f"./figures/{figure_name}"
 
     if not os.path.isfile(figure_path):
-        return Response(
-            content={"error": "figure not found"}, media_type="application/json"
-        )
+        return Response(content="error: figure not found", media_type="text/plain")
 
     return FileResponse(figure_path)
 
