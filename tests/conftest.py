@@ -8,6 +8,8 @@ from scmcp_shared.server.preset import ScanpyPlottingMCP
 from scmcp_shared.server.preset import ScanpyUtilMCP
 from scmcp_shared.server.auto import auto_mcp
 from scmcp_shared.server.code import nb_mcp
+from scmcp_shared.server.rag import rag_mcp
+from scmcp_shared.server.kb import kb_mcp
 
 
 class ScanpyMCPManager(BaseMCPManager):
@@ -23,6 +25,8 @@ class ScanpyMCPManager(BaseMCPManager):
             "ul": ScanpyUtilMCP().mcp,
             "auto": auto_mcp,
             "nb": nb_mcp,
+            "rag": rag_mcp,
+            "kb": kb_mcp,
         }
 
 
@@ -34,4 +38,10 @@ def mcp():
 @pytest.fixture
 def nb_mcp_fixture():
     mcp = ScanpyMCPManager("scmcp", include_tags=["nb"], backend=NotebookManager).mcp
+    return mcp
+
+
+@pytest.fixture
+def kb_mcp_fixture():
+    mcp = ScanpyMCPManager("scmcp", include_tags=["kb"], backend=NotebookManager).mcp
     return mcp
