@@ -41,7 +41,7 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_pca, name="pca", enabled=True)
+        return Tool.from_function(_pca, name="pca", enabled=True, tags=["preset"])
 
     def _tool_diffmap(self):
         def _diffmap(
@@ -62,7 +62,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_diffmap, name="diffmap", enabled=True)
+        return Tool.from_function(
+            _diffmap, name="diffmap", enabled=True, tags=["preset"]
+        )
 
     def _tool_violin(self):
         def _violin(request: ViolinParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -85,7 +87,7 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_violin, name="violin", enabled=True)
+        return Tool.from_function(_violin, name="violin", enabled=True, tags=["preset"])
 
     def _tool_stacked_violin(self):
         def _stacked_violin(
@@ -108,7 +110,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_stacked_violin, name="stacked_violin", enabled=True)
+        return Tool.from_function(
+            _stacked_violin, name="stacked_violin", enabled=True, tags=["preset"]
+        )
 
     def _tool_heatmap(self):
         async def _heatmap(
@@ -129,7 +133,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_heatmap, name="heatmap", enabled=True)
+        return Tool.from_function(
+            _heatmap, name="heatmap", enabled=True, tags=["preset"]
+        )
 
     def _tool_dotplot(self):
         def _dotplot(request: DotplotParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -148,7 +154,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_dotplot, name="dotplot", enabled=True)
+        return Tool.from_function(
+            _dotplot, name="dotplot", enabled=True, tags=["preset"]
+        )
 
     def _tool_matrixplot(self):
         def _matrixplot(
@@ -171,7 +179,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_matrixplot, name="matrixplot", enabled=True)
+        return Tool.from_function(
+            _matrixplot, name="matrixplot", enabled=True, tags=["preset"]
+        )
 
     def _tool_tracksplot(self):
         def _tracksplot(
@@ -194,7 +204,7 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_tracksplot, name="tracksplot")
+        return Tool.from_function(_tracksplot, name="tracksplot", tags=["preset"])
 
     def _tool_scatter(self):
         def _scatter(
@@ -215,7 +225,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_scatter, name="scatter", enabled=True)
+        return Tool.from_function(
+            _scatter, name="scatter", enabled=True, tags=["preset"]
+        )
 
     def _tool_embedding(self):
         def _embedding(
@@ -240,7 +252,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_embedding, name="embedding", enabled=True)
+        return Tool.from_function(
+            _embedding, name="embedding", enabled=True, tags=["preset"]
+        )
 
     def _tool_embedding_density(self):
         def _embedding_density(
@@ -264,7 +278,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _embedding_density, name="embedding_density", enabled=True
+            _embedding_density, name="embedding_density", enabled=True, tags=["preset"]
         )
 
     def _tool_rank_genes_groups(self):
@@ -289,7 +303,7 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _rank_genes_groups, name="rank_genes_groups", enabled=True
+            _rank_genes_groups, name="rank_genes_groups", enabled=True, tags=["preset"]
         )
 
     def _tool_rank_genes_groups_dotplot(self):
@@ -319,7 +333,10 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _rank_genes_groups_dotplot, name="rank_genes_groups_dotplot", enabled=True
+            _rank_genes_groups_dotplot,
+            name="rank_genes_groups_dotplot",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_clustermap(self):
@@ -343,7 +360,9 @@ class ScanpyPlottingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_clustermap, name="clustermap", enabled=True)
+        return Tool.from_function(
+            _clustermap, name="clustermap", enabled=True, tags=["preset"]
+        )
 
     def _tool_highly_variable_genes(self):
         def _highly_variable_genes(
@@ -369,7 +388,10 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _highly_variable_genes, name="highly_variable_genes", enabled=True
+            _highly_variable_genes,
+            name="highly_variable_genes",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_pca_variance_ratio(self):
@@ -396,5 +418,8 @@ class ScanpyPlottingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _pca_variance_ratio, name="pca_variance_ratio", enabled=True
+            _pca_variance_ratio,
+            name="pca_variance_ratio",
+            enabled=True,
+            tags=["preset"],
         )

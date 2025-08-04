@@ -36,7 +36,9 @@ class ScanpyUtilMCP(BaseMCP):
                 op_list.append(op_dic[opid])
             return op_list
 
-        return Tool.from_function(_query_op_log, name="query_op_log", enabled=True)
+        return Tool.from_function(
+            _query_op_log, name="query_op_log", enabled=True, tags=["preset"]
+        )
 
     def _tool_mark_var(self):
         def _mark_var(request: MarkVarParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -104,7 +106,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_mark_var, name="mark_var", enabled=True)
+        return Tool.from_function(
+            _mark_var, name="mark_var", enabled=True, tags=["preset"]
+        )
 
     def _tool_list_var(self):
         def _list_var(
@@ -128,7 +132,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_list_var, name="list_var", enabled=True)
+        return Tool.from_function(
+            _list_var, name="list_var", enabled=True, tags=["preset"]
+        )
 
     def _tool_list_obs(self):
         def _list_obs(request: ListObsParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -149,7 +155,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_list_obs, name="list_obs", enabled=True)
+        return Tool.from_function(
+            _list_obs, name="list_obs", enabled=True, tags=["preset"]
+        )
 
     def _tool_check_var(self):
         def _check_var(
@@ -177,7 +185,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_check_var, name="check_var", enabled=True)
+        return Tool.from_function(
+            _check_var, name="check_var", enabled=True, tags=["preset"]
+        )
 
     def _tool_merge_adata(self):
         def _merge_adata(
@@ -210,7 +220,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_merge_adata, name="merge_adata", enabled=True)
+        return Tool.from_function(
+            _merge_adata, name="merge_adata", enabled=True, tags=["preset"]
+        )
 
     def _tool_set_dpt_iroot(self):
         def _set_dpt_iroot(
@@ -253,7 +265,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_set_dpt_iroot, name="set_dpt_iroot", enabled=True)
+        return Tool.from_function(
+            _set_dpt_iroot, name="set_dpt_iroot", enabled=True, tags=["preset"]
+        )
 
     def _tool_add_layer(self):
         def _add_layer(
@@ -290,7 +304,9 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_add_layer, name="add_layer", enabled=True)
+        return Tool.from_function(
+            _add_layer, name="add_layer", enabled=True, tags=["preset"]
+        )
 
     def _tool_check_samples(self):
         def _check_samples(request: None, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -310,4 +326,6 @@ class ScanpyUtilMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_check_samples, name="check_samples", enabled=True)
+        return Tool.from_function(
+            _check_samples, name="check_samples", enabled=True, tags=["preset"]
+        )

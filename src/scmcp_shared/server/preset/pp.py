@@ -81,7 +81,9 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_subset_cells, name="subset_cells", enabled=True)
+        return Tool.from_function(
+            _subset_cells, name="subset_cells", enabled=True, tags=["preset"]
+        )
 
     def _tool_subset_genes(self):
         def _subset_genes(
@@ -133,7 +135,9 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_subset_genes, name="subset_genes", enabled=True)
+        return Tool.from_function(
+            _subset_genes, name="subset_genes", enabled=True, tags=["preset"]
+        )
 
     def _tool_calculate_qc_metrics(self):
         def _calculate_qc_metrics(
@@ -170,7 +174,10 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _calculate_qc_metrics, name="calculate_qc_metrics", enabled=True
+            _calculate_qc_metrics,
+            name="calculate_qc_metrics",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_log1p(self):
@@ -202,7 +209,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_log1p, name="log1p", enabled=True)
+        return Tool.from_function(_log1p, name="log1p", enabled=True, tags=["preset"])
 
     def _tool_normalize_total(self):
         def _normalize_total(
@@ -229,7 +236,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _normalize_total, name="normalize_total", enabled=True
+            _normalize_total, name="normalize_total", enabled=True, tags=["preset"]
         )
 
     def _tool_highly_variable_genes(self):
@@ -259,7 +266,10 @@ class ScanpyPreprocessingMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _highly_variable_genes, name="highly_variable_genes", enabled=True
+            _highly_variable_genes,
+            name="highly_variable_genes",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_regress_out(self):
@@ -286,7 +296,9 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_regress_out, name="regress_out", enabled=True)
+        return Tool.from_function(
+            _regress_out, name="regress_out", enabled=True, tags=["preset"]
+        )
 
     def _tool_scale(self):
         def _scale(request: ScaleParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -312,7 +324,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_scale, name="scale", enabled=True)
+        return Tool.from_function(_scale, name="scale", enabled=True, tags=["preset"])
 
     def _tool_combat(self):
         def _combat(request: CombatParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -338,7 +350,7 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_combat, name="combat", enabled=True)
+        return Tool.from_function(_combat, name="combat", enabled=True, tags=["preset"])
 
     def _tool_scrublet(self):
         def _scrublet(
@@ -363,7 +375,9 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_scrublet, name="scrublet", enabled=True)
+        return Tool.from_function(
+            _scrublet, name="scrublet", enabled=True, tags=["preset"]
+        )
 
     def _tool_neighbors(self):
         def _neighbors(
@@ -388,4 +402,6 @@ class ScanpyPreprocessingMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_neighbors, name="neighbors", enabled=True)
+        return Tool.from_function(
+            _neighbors, name="neighbors", enabled=True, tags=["preset"]
+        )

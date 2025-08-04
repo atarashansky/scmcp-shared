@@ -70,7 +70,7 @@ class ScanpyIOMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_read, name="read", enabled=True)
+        return Tool.from_function(_read, name="read", enabled=True, tags=["preset"])
 
     def _tool_write(self):
         def _write(request: WriteParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -92,7 +92,7 @@ class ScanpyIOMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_write, name="write", enabled=True)
+        return Tool.from_function(_write, name="write", enabled=True, tags=["preset"])
 
 
 # Create an instance of the class

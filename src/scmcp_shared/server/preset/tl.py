@@ -53,7 +53,7 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_tsne, name="tsne", enabled=True)
+        return Tool.from_function(_tsne, name="tsne", enabled=True, tags=["preset"])
 
     def _tool_umap(self):
         def _umap(
@@ -78,7 +78,7 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_umap, name="umap", enabled=True)
+        return Tool.from_function(_umap, name="umap", enabled=True, tags=["preset"])
 
     def _tool_draw_graph(self):
         def _draw_graph(
@@ -103,7 +103,9 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_draw_graph, name="draw_graph", enabled=True)
+        return Tool.from_function(
+            _draw_graph, name="draw_graph", enabled=True, tags=["preset"]
+        )
 
     def _tool_diffmap(self):
         def _diffmap(request: DiffMapParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -127,7 +129,9 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_diffmap, name="diffmap", enabled=True)
+        return Tool.from_function(
+            _diffmap, name="diffmap", enabled=True, tags=["preset"]
+        )
 
     def _tool_embedding_density(self):
         def _embedding_density(
@@ -153,7 +157,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _embedding_density, name="embedding_density", enabled=True
+            _embedding_density, name="embedding_density", enabled=True, tags=["preset"]
         )
 
     def _tool_leiden(self):
@@ -180,7 +184,7 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_leiden, name="leiden", enabled=True)
+        return Tool.from_function(_leiden, name="leiden", enabled=True, tags=["preset"])
 
     def _tool_louvain(self):
         def _louvain(
@@ -206,7 +210,9 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_louvain, name="louvain", enabled=True)
+        return Tool.from_function(
+            _louvain, name="louvain", enabled=True, tags=["preset"]
+        )
 
     def _tool_dendrogram(self):
         def _dendrogram(
@@ -231,7 +237,9 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_dendrogram, name="dendrogram", enabled=True)
+        return Tool.from_function(
+            _dendrogram, name="dendrogram", enabled=True, tags=["preset"]
+        )
 
     def _tool_dpt(self):
         def _dpt(request: DPTParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -254,7 +262,7 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_dpt, name="dpt", enabled=True)
+        return Tool.from_function(_dpt, name="dpt", enabled=True, tags=["preset"])
 
     def _tool_paga(self):
         def _paga(request: PAGAParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -277,7 +285,7 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_paga, name="paga", enabled=True)
+        return Tool.from_function(_paga, name="paga", enabled=True, tags=["preset"])
 
     def _tool_ingest(self):
         def _ingest(request: IngestParam, adinfo: self.AdataInfo = self.AdataInfo()):
@@ -300,7 +308,7 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_ingest, name="ingest", enabled=True)
+        return Tool.from_function(_ingest, name="ingest", enabled=True, tags=["preset"])
 
     def _tool_rank_genes_groups(self):
         def _rank_genes_groups(
@@ -326,7 +334,7 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _rank_genes_groups, name="rank_genes_groups", enabled=True
+            _rank_genes_groups, name="rank_genes_groups", enabled=True, tags=["preset"]
         )
 
     def _tool_filter_rank_genes_groups(self):
@@ -354,7 +362,10 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _filter_rank_genes_groups, name="filter_rank_genes_groups", enabled=True
+            _filter_rank_genes_groups,
+            name="filter_rank_genes_groups",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_marker_gene_overlap(self):
@@ -381,7 +392,10 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _marker_gene_overlap, name="marker_gene_overlap", enabled=True
+            _marker_gene_overlap,
+            name="marker_gene_overlap",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_score_genes(self):
@@ -407,7 +421,9 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_score_genes, name="score_genes", enabled=True)
+        return Tool.from_function(
+            _score_genes, name="score_genes", enabled=True, tags=["preset"]
+        )
 
     def _tool_score_genes_cell_cycle(self):
         def _score_genes_cell_cycle(
@@ -433,7 +449,10 @@ class ScanpyToolsMCP(BaseMCP):
                     raise ToolError(e)
 
         return Tool.from_function(
-            _score_genes_cell_cycle, name="score_genes_cell_cycle", enabled=True
+            _score_genes_cell_cycle,
+            name="score_genes_cell_cycle",
+            enabled=True,
+            tags=["preset"],
         )
 
     def _tool_pca(self):
@@ -459,4 +478,4 @@ class ScanpyToolsMCP(BaseMCP):
                 else:
                     raise ToolError(e)
 
-        return Tool.from_function(_pca, name="pca", enabled=True)
+        return Tool.from_function(_pca, name="pca", enabled=True, tags=["preset"])
