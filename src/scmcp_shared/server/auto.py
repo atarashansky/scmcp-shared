@@ -1,7 +1,9 @@
+import json
 from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_context
 from ..agent import select_tool
 from pydantic import Field
+from typing import Union
 
 auto_mcp = FastMCP("SmartMCP-select-Server")
 
@@ -45,7 +47,7 @@ def search_tool(
 @auto_mcp.tool(tags={"auto"})
 async def run_tool(
     name: str = Field(description="The name of the tool to run"),
-    parameter: dict = Field(description="The parameters to pass to the tool"),
+    parameter: Union[dict, str] = Field(description="The parameters to pass to the tool"),
 ):
     """run the tool with the given name and parameters. Only start call the tool when last tool is finished."""
     ctx = get_context()
@@ -53,6 +55,14 @@ async def run_tool(
     all_tools = fastmcp._tool_manager._all_tools
     auto_tools = fastmcp._tool_manager._tools
     fastmcp._tool_manager._tools = all_tools
+
+    # Deserialize JSON string if needed
+    if isinstance(parameter, str):
+        try:
+            parameter = json.loads(parameter)
+        except json.JSONDecodeError:
+            fastmcp._tool_manager._tools = auto_tools
+            return {"error": f"Invalid JSON in parameter: {parameter}"}
 
     try:
         result = await fastmcp._tool_manager.call_tool(name, parameter)
