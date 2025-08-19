@@ -330,12 +330,22 @@ def setup_mcp(mcp, sub_mcp_dic, modules=None):
 def _update_args(mcp, func, args_dic: dict):
     for args, property_dic in args_dic.items():
         for pk, v in property_dic.items():
-            mcp._tool_manager._tools[func].parameters["properties"][
-                "request"
-            ].setdefault(pk, {})
-            mcp._tool_manager._tools[func].parameters["properties"]["request"][pk][
-                args
-            ] = v
+            # Ensure the nested structure exists
+            if func not in mcp._tool_manager._tools:
+                continue  # Skip if tool doesn't exist
+            
+            tool = mcp._tool_manager._tools[func]
+            if not hasattr(tool, 'parameters') or tool.parameters is None:
+                tool.parameters = {}
+            if "properties" not in tool.parameters:
+                tool.parameters["properties"] = {}
+            if "request" not in tool.parameters["properties"]:
+                tool.parameters["properties"]["request"] = {}
+            if pk not in tool.parameters["properties"]["request"]:
+                tool.parameters["properties"]["request"][pk] = {}
+            
+            # Now safely set the value
+            tool.parameters["properties"]["request"][pk][args] = v
 
 
 def update_mcp_args(mcp, tool_args: dict):
