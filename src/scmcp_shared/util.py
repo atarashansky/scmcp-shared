@@ -6,6 +6,55 @@ from fastmcp.exceptions import ToolError
 import asyncio
 import nest_asyncio
 from pydantic import BaseModel
+import json
+from typing import Union, Type, TypeVar
+
+# TypeVar for generic Pydantic model types
+T = TypeVar("T", bound=BaseModel)
+
+
+def deserialize_mcp_param(
+    param: Union[T, str, dict], param_class: Type[T], default_instance: T = None
+) -> T:
+    """
+    Deserialize MCP parameters that may come as JSON strings, dicts, or already as proper Pydantic models.
+
+    Args:
+        param: The parameter to deserialize (Pydantic model, dict, or JSON string)
+        param_class: The expected Pydantic model class
+        default_instance: Default instance to use if param is None
+
+    Returns:
+        Properly deserialized Pydantic model instance
+    """
+    if param is None:
+        if default_instance is not None:
+            return default_instance
+        return param_class()
+
+    # Handle JSON string deserialization
+    if isinstance(param, str):
+        try:
+            param = json.loads(param)
+        except json.JSONDecodeError:
+            raise ValueError(f"Invalid JSON string for {param_class.__name__}: {param}")
+
+    # Convert dict to Pydantic model
+    if isinstance(param, dict):
+        try:
+            return param_class(**param)
+        except Exception as e:
+            raise ValueError(
+                f"Failed to create {param_class.__name__} from dict {param}: {e}"
+            )
+
+    # Check if already the correct type
+    if isinstance(param, param_class):
+        return param
+
+    raise ValueError(
+        f"param must be a {param_class.__name__} object, dict, or JSON string, got {type(param)}"
+    )
 
 
 def get_env(key):

@@ -1,4 +1,5 @@
 import scanpy as sc
+from typing import Union
 from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import Tool
 from scmcp_shared.schema.preset.tl import *
@@ -9,6 +10,7 @@ from scmcp_shared.util import (
     forward_request,
     get_ads,
     generate_msg,
+    deserialize_mcp_param,
 )
 from scmcp_shared.mcp_base import BaseMCP
 
@@ -32,9 +34,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_tsne(self):
         def _tsne(
-            request: TSNEParam = TSNEParam(), adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[TSNEParam, str, dict] = None, adinfo: Union[AdataInfo, str, dict] = None
         ):
             """t-distributed stochastic neighborhood embedding (t-SNE) for visualization"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, TSNEParam, TSNEParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_tsne", request, adinfo)
                 if result is not None:
@@ -57,9 +62,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_umap(self):
         def _umap(
-            request: UMAPParam = UMAPParam(), adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[UMAPParam, str, dict] = None, adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Uniform Manifold Approximation and Projection (UMAP) for visualization"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, UMAPParam, UMAPParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_umap", request, adinfo)
                 if result is not None:
@@ -82,9 +90,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_draw_graph(self):
         def _draw_graph(
-            request: DrawGraphParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[DrawGraphParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Force-directed graph drawing"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, DrawGraphParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_draw_graph", request, adinfo)
                 if result is not None:
@@ -108,8 +119,11 @@ class ScanpyToolsMCP(BaseMCP):
         )
 
     def _tool_diffmap(self):
-        def _diffmap(request: DiffMapParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _diffmap(request: Union[DiffMapParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """Diffusion Maps for dimensionality reduction"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, DiffMapParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_diffmap", request, adinfo)
                 if result is not None:
@@ -135,9 +149,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_embedding_density(self):
         def _embedding_density(
-            request: EmbeddingDensityParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[EmbeddingDensityParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Calculate the density of cells in an embedding"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, EmbeddingDensityParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_embedding_density", request, adinfo)
                 if result is not None:
@@ -162,10 +179,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_leiden(self):
         def _leiden(
-            request: LeidenParam = LeidenParam(),
-            adinfo: self.AdataInfo = self.AdataInfo(),
+            request: Union[LeidenParam, str, dict] = None, adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Leiden clustering algorithm for community detection"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, LeidenParam, LeidenParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_leiden", request, adinfo)
                 if result is not None:
@@ -188,10 +207,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_louvain(self):
         def _louvain(
-            request: LouvainParam = LouvainParam(),
-            adinfo: self.AdataInfo = self.AdataInfo(),
+            request: Union[LouvainParam, str, dict] = None, adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Louvain clustering algorithm for community detection"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, LouvainParam, LouvainParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_louvain", request, adinfo)
                 if result is not None:
@@ -216,9 +237,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_dendrogram(self):
         def _dendrogram(
-            request: DendrogramParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[DendrogramParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Hierarchical clustering dendrogram"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, DendrogramParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_dendrogram", request, adinfo)
                 if result is not None:
@@ -242,8 +266,11 @@ class ScanpyToolsMCP(BaseMCP):
         )
 
     def _tool_dpt(self):
-        def _dpt(request: DPTParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _dpt(request: Union[DPTParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """Diffusion Pseudotime (DPT) analysis"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, DPTParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_dpt", request, adinfo)
                 if result is not None:
@@ -265,8 +292,11 @@ class ScanpyToolsMCP(BaseMCP):
         return Tool.from_function(_dpt, name="dpt", enabled=True, tags=["preset"])
 
     def _tool_paga(self):
-        def _paga(request: PAGAParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _paga(request: Union[PAGAParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """Partition-based graph abstraction"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, PAGAParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_paga", request, adinfo)
                 if result is not None:
@@ -288,8 +318,11 @@ class ScanpyToolsMCP(BaseMCP):
         return Tool.from_function(_paga, name="paga", enabled=True, tags=["preset"])
 
     def _tool_ingest(self):
-        def _ingest(request: IngestParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _ingest(request: Union[IngestParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """Map labels and embeddings from reference data to new data"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, IngestParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_ingest", request, adinfo)
                 if result is not None:
@@ -312,9 +345,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_rank_genes_groups(self):
         def _rank_genes_groups(
-            request: RankGenesGroupsParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[RankGenesGroupsParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Rank genes for characterizing groups, for differentially expressison analysis"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, RankGenesGroupsParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_rank_genes_groups", request, adinfo)
                 if result is not None:
@@ -339,10 +375,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_filter_rank_genes_groups(self):
         def _filter_rank_genes_groups(
-            request: FilterRankGenesGroupsParam,
-            adinfo: self.AdataInfo = self.AdataInfo(),
+            request: Union[FilterRankGenesGroupsParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Filter out genes based on fold change and fraction of genes"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, FilterRankGenesGroupsParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_filter_rank_genes_groups", request, adinfo)
                 if result is not None:
@@ -370,9 +408,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_marker_gene_overlap(self):
         def _marker_gene_overlap(
-            request: MarkerGeneOverlapParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[MarkerGeneOverlapParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Calculate overlap between data-derived marker genes and reference markers"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, MarkerGeneOverlapParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_marker_gene_overlap", request, adinfo)
                 if result is not None:
@@ -400,9 +441,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_score_genes(self):
         def _score_genes(
-            request: ScoreGenesParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[ScoreGenesParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Score a set of genes based on their average expression"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, ScoreGenesParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_score_genes", request, adinfo)
                 if result is not None:
@@ -427,9 +471,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_score_genes_cell_cycle(self):
         def _score_genes_cell_cycle(
-            request: ScoreGenesCellCycleParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[ScoreGenesCellCycleParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Score cell cycle genes and assign cell cycle phases"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, ScoreGenesCellCycleParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_score_genes_cell_cycle", request, adinfo)
                 if result is not None:
@@ -457,9 +504,12 @@ class ScanpyToolsMCP(BaseMCP):
 
     def _tool_pca(self):
         def _pca(
-            request: PCAParam = PCAParam(), adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[PCAParam, str, dict] = None, adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Compute PCA (Principal Component Analysis)."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, PCAParam, PCAParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("tl_pca", request, adinfo)
                 if result is not None:

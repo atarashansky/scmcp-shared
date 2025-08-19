@@ -1,4 +1,5 @@
 import scanpy as sc
+from typing import Union
 from fastmcp.tools.tool import Tool
 from fastmcp.exceptions import ToolError
 from scmcp_shared.schema.preset import AdataInfo
@@ -9,6 +10,7 @@ from scmcp_shared.util import (
     forward_request,
     get_ads,
     generate_msg,
+    deserialize_mcp_param,
 )
 from scmcp_shared.mcp_base import BaseMCP
 
@@ -32,9 +34,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_subset_cells(self):
         def _subset_cells(
-            request: SubsetCellParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[SubsetCellParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """filter or subset cells based on total genes expressed counts and numbers. or values in adata.obs[obs_key]"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, SubsetCellParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("subset_cells", request, adinfo)
                 if result is not None:
@@ -87,9 +92,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_subset_genes(self):
         def _subset_genes(
-            request: SubsetGeneParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[SubsetGeneParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """filter or subset genes based on number of cells or counts, or values in adata.var[var_key] or subset highly variable genes"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, SubsetGeneParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_subset_genes", request, adinfo)
                 if result is not None:
@@ -141,9 +149,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_calculate_qc_metrics(self):
         def _calculate_qc_metrics(
-            request: CalculateQCMetrics, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[CalculateQCMetrics, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Calculate quality control metrics(common metrics: total counts, gene number, percentage of counts in ribosomal and mitochondrial) for AnnData."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, CalculateQCMetrics)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_calculate_qc_metrics", request, adinfo)
                 if result is not None:
@@ -182,10 +193,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_log1p(self):
         def _log1p(
-            request: Log1PParam = Log1PParam(),
-            adinfo: self.AdataInfo = self.AdataInfo(),
+            request: Union[Log1PParam, str, dict] = None, adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Logarithmize the data matrix"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, Log1PParam, Log1PParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_log1p", request, adinfo)
                 if result is not None:
@@ -213,9 +226,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_normalize_total(self):
         def _normalize_total(
-            request: NormalizeTotalParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[NormalizeTotalParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Normalize counts per cell to the same total count"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, NormalizeTotalParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_normalize_total", request, adinfo)
                 if result is not None:
@@ -241,9 +257,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_highly_variable_genes(self):
         def _highly_variable_genes(
-            request: HighlyVariableGenesParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[HighlyVariableGenesParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Annotate highly variable genes"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, HighlyVariableGenesParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_highly_variable_genes", request, adinfo)
                 if result is not None:
@@ -274,9 +293,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_regress_out(self):
         def _regress_out(
-            request: RegressOutParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[RegressOutParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Regress out (mostly) unwanted sources of variation."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, RegressOutParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_regress_out", request, adinfo)
                 if result is not None:
@@ -301,8 +323,11 @@ class ScanpyPreprocessingMCP(BaseMCP):
         )
 
     def _tool_scale(self):
-        def _scale(request: ScaleParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _scale(request: Union[ScaleParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """Scale data to unit variance and zero mean"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, ScaleParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_scale", request, adinfo)
                 if result is not None:
@@ -327,8 +352,11 @@ class ScanpyPreprocessingMCP(BaseMCP):
         return Tool.from_function(_scale, name="scale", enabled=True, tags=["preset"])
 
     def _tool_combat(self):
-        def _combat(request: CombatParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _combat(request: Union[CombatParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """ComBat function for batch effect correction"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, CombatParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_combat", request, adinfo)
                 if result is not None:
@@ -354,9 +382,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_scrublet(self):
         def _scrublet(
-            request: ScrubletParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[ScrubletParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Predict doublets using Scrublet"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, ScrubletParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_scrublet", request, adinfo)
                 if result is not None:
@@ -381,9 +412,12 @@ class ScanpyPreprocessingMCP(BaseMCP):
 
     def _tool_neighbors(self):
         def _neighbors(
-            request: NeighborsParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[NeighborsParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
         ):
             """Compute nearest neighbors distance matrix and neighborhood graph"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, NeighborsParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("pp_neighbors", request, adinfo)
                 if result is not None:

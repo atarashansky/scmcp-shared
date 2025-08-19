@@ -1,11 +1,13 @@
 from pathlib import Path
 import scanpy as sc
+from typing import Union
 from fastmcp.tools.tool import Tool
 from fastmcp.exceptions import ToolError
 from scmcp_shared.schema.preset import AdataInfo
 from scmcp_shared.schema.preset.io import *
-from scmcp_shared.util import filter_args, forward_request, get_ads
+from scmcp_shared.util import filter_args, forward_request, get_ads, deserialize_mcp_param
 from scmcp_shared.mcp_base import BaseMCP
+
 
 
 class ScanpyIOMCP(BaseMCP):
@@ -19,10 +21,14 @@ class ScanpyIOMCP(BaseMCP):
         super().__init__("SCMCP-IO-Server", include_tools, exclude_tools, AdataInfo)
 
     def _tool_read(self):
-        def _read(request: ReadParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _read(request: Union[ReadParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """
             Read data from 10X directory or various file formats (h5ad, 10x, text files, etc.).
             """
+            # Use the new utility function for parameter deserialization
+            request = deserialize_mcp_param(request, ReadParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
+                
             try:
                 res = forward_request("io_read", request, adinfo)
                 if res is not None:
@@ -73,8 +79,12 @@ class ScanpyIOMCP(BaseMCP):
         return Tool.from_function(_read, name="read", enabled=True, tags=["preset"])
 
     def _tool_write(self):
-        def _write(request: WriteParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _write(request: Union[WriteParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
             """save adata into a file."""
+            # Use the new utility function for parameter deserialization
+            request = deserialize_mcp_param(request, WriteParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
+                
             try:
                 res = forward_request("io_write", request, adinfo)
                 if res is not None:

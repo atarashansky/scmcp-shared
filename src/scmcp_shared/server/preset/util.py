@@ -1,8 +1,14 @@
+from typing import Union
 from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import Tool
 from scmcp_shared.schema.preset.util import *
 from scmcp_shared.schema.preset import AdataInfo
-from scmcp_shared.util import forward_request, get_ads, add_op_log
+from scmcp_shared.util import (
+    forward_request,
+    get_ads,
+    add_op_log,
+    deserialize_mcp_param,
+)
 from scmcp_shared.mcp_base import BaseMCP
 
 
@@ -25,9 +31,13 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_query_op_log(self):
         def _query_op_log(
-            request: QueryOpLogParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[QueryOpLogParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Query the adata operation log"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, QueryOpLogParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             adata = get_ads().get_adata(adinfo=adinfo)
             op_dic = adata.uns["operation"]["op"]
             opids = adata.uns["operation"]["opid"][-request.n :]
@@ -41,12 +51,18 @@ class ScanpyUtilMCP(BaseMCP):
         )
 
     def _tool_mark_var(self):
-        def _mark_var(request: MarkVarParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _mark_var(
+            request: Union[MarkVarParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
             """
             Determine if each gene meets specific conditions and store results in adata.var as boolean values.
             For example: mitochondrion genes startswith MT-.
             The tool should be called first when calculate quality control metrics for mitochondrion, ribosomal, harhemoglobin genes, or other qc_vars.
             """
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, MarkVarParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_mark_var", request, adinfo)
                 if result is not None:
@@ -112,10 +128,13 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_list_var(self):
         def _list_var(
-            request: ListVarParam = ListVarParam(),
-            adinfo: self.AdataInfo = self.AdataInfo(),
+            request: Union[ListVarParam, str, dict] = None,
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """List key columns in adata.var. It should be called for checking when other tools need var key column names as input."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, ListVarParam, ListVarParam())
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_list_var", request, adinfo)
                 if result is not None:
@@ -137,8 +156,16 @@ class ScanpyUtilMCP(BaseMCP):
         )
 
     def _tool_list_obs(self):
-        def _list_obs(request: ListObsParam, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _list_obs(
+            request: Union[ListObsParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
             """List key columns in adata.obs. It should be called before other tools need obs key column names input."""
+            # Deserialize parameters
+            print(request)
+            request = deserialize_mcp_param(request, ListObsParam)
+            print(request)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_list_obs", request, adinfo)
                 if result is not None:
@@ -161,9 +188,13 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_check_var(self):
         def _check_var(
-            request: VarNamesParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[VarNamesParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Check if genes/variables exist in adata.var_names. This tool should be called before gene expression visualizations or color by genes."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, VarNamesParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_check_var", request, adinfo)
                 if result is not None:
@@ -191,9 +222,13 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_merge_adata(self):
         def _merge_adata(
-            request: ConcatBaseParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[ConcatBaseParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Merge multiple adata objects."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, ConcatBaseParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_merge_adata", request, adinfo)
                 if result is not None:
@@ -226,9 +261,13 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_set_dpt_iroot(self):
         def _set_dpt_iroot(
-            request: DPTIROOTParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[DPTIROOTParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Set the iroot cell"""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, DPTIROOTParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_set_dpt_iroot", request, adinfo)
                 if result is not None:
@@ -271,9 +310,13 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_add_layer(self):
         def _add_layer(
-            request: AddLayerParam, adinfo: self.AdataInfo = self.AdataInfo()
+            request: Union[AddLayerParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Add a layer to the AnnData object."""
+            # Deserialize parameters
+            request = deserialize_mcp_param(request, AddLayerParam)
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 result = forward_request("ul_add_layer", request, adinfo)
                 if result is not None:
@@ -309,8 +352,15 @@ class ScanpyUtilMCP(BaseMCP):
         )
 
     def _tool_check_samples(self):
-        def _check_samples(request: None, adinfo: self.AdataInfo = self.AdataInfo()):
+        def _check_samples(
+            request: Union[None, str, dict] = None,
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
             """check the stored samples"""
+            # Deserialize parameters - request can be None for this function
+            if request is not None:
+                request = deserialize_mcp_param(request, type(None))
+            adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
             try:
                 ads = get_ads()
                 return {
