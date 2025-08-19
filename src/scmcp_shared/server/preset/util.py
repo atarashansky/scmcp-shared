@@ -162,7 +162,7 @@ class ScanpyUtilMCP(BaseMCP):
         ):
             """List key columns in adata.obs. It should be called before other tools need obs key column names input."""
             # Deserialize parameters
-            print(request)
+            print("TEST REQUEST LOG")
             request = deserialize_mcp_param(request, ListObsParam)
             print(request)
             adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
