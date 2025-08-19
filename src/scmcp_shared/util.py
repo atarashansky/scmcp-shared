@@ -341,7 +341,9 @@ def _update_args(mcp, func, args_dic: dict):
                 tool.parameters["properties"] = {}
             if "request" not in tool.parameters["properties"]:
                 tool.parameters["properties"]["request"] = {}
-            if pk not in tool.parameters["properties"]["request"]:
+            # Check if pk exists but is None, or doesn't exist at all
+            if pk not in tool.parameters["properties"]["request"] or \
+               tool.parameters["properties"]["request"][pk] is None:
                 tool.parameters["properties"]["request"][pk] = {}
             
             # Now safely set the value
