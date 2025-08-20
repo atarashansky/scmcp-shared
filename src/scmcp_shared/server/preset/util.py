@@ -1,4 +1,5 @@
 from typing import Union
+import pandas as pd
 from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import Tool
 from scmcp_shared.schema.preset.util import *
@@ -382,19 +383,34 @@ class ScanpyUtilMCP(BaseMCP):
 
     def _tool_map_cell_type(self):
         def _map_cell_type(
-            request,
-            adinfo=None,
+            request: Union[CelltypeMapCellTypeParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
-            """Map cluster id to cell type names"""
-            # Import types here to avoid circular imports
+            """
+            Map cluster IDs to cell type names in the AnnData object.
+
+            This function assigns biological cell type names to clusters identified in adata.obs[cluster_key].
+            The mapping can be provided either as a dictionary (mapping cluster IDs to cell type names) or as a list of new category names.
+            The result is stored in a new column (added_key) in adata.obs, or the categories of cluster_key are renamed.
+
+            Args:
+                request: CelltypeMapCellTypeModel or compatible dict/str, specifying cluster_key, added_key, and mapping or new_names.
+                adinfo: AdataInfo or compatible dict/str, identifying the AnnData object.
+
+            Returns:
+                list: A list containing a dict with status, message, and updated AnnData object info.
+            """
             try:
-                request = deserialize_mcp_param(request, CelltypeMapCellTypeModel)
+                # Deserialize parameters
+                request = deserialize_mcp_param(request, CelltypeMapCellTypeParam)
                 adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
 
                 result = forward_request("ul_map_cell_type", request, adinfo)
                 if result is not None:
                     return result
-                adata = get_ads().get_adata(adinfo=adinfo)
+
+                ads = get_ads()
+                adata = ads.get_adata(adinfo=adinfo).copy()
                 cluster_key = request.cluster_key
                 added_key = request.added_key
 
@@ -402,24 +418,31 @@ class ScanpyUtilMCP(BaseMCP):
                     raise ValueError(
                         f"cluster key '{cluster_key}' not found in adata.obs"
                     )
+
+                # Perform mapping
                 if request.mapping is not None:
-                    adata.obs[added_key] = adata.obs[cluster_key].map(request.mapping)
-                elif request.new_names is not None:
-                    adata.rename_categories(cluster_key, request.new_names)
+                    # Map using provided dictionary
+                    adata.obs[added_key] = pd.Categorical(
+                        pd.Series(adata.obs[cluster_key]).map(request.mapping)
+                    )
 
                 func_kwargs = {
                     "cluster_key": cluster_key,
                     "added_key": added_key,
                     "mapping": request.mapping,
-                    "new_names": request.new_names,
                 }
                 add_op_log(adata, "map_cell_type", func_kwargs, adinfo)
 
-                return {
-                    "status": "success",
-                    "message": f"Successfully mapped values from '{cluster_key}' to '{added_key}'",
-                    "adata": adata,
-                }
+                # Update the AnnData in the context
+                ads.set_adata(adata, adinfo=adinfo)
+
+                return [
+                    {
+                        "status": "success",
+                        "message": f"Successfully mapped values from '{cluster_key}' to '{added_key}'",
+                        "adata": adata,
+                    }
+                ]
             except ToolError as e:
                 raise ToolError(e)
             except Exception as e:

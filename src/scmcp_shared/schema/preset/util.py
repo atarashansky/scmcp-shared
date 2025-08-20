@@ -2,20 +2,6 @@ from pydantic import Field, BaseModel
 from typing import Optional, List, Dict, Any, Literal
 
 
-class CelltypeMapCellTypeModel(BaseModel):
-    """Input schema for mapping cluster IDs to cell type names."""
-
-    cluster_key: str = Field(description="Key in adata.obs containing cluster IDs.")
-    added_key: str = Field(description="Key to add to adata.obs for cell type names.")
-    mapping: Dict[str, str] = Field(
-        default=None,
-        description="Mapping Dictionary from cluster IDs to cell type names.",
-    )
-    new_names: Optional[List[str]] = Field(
-        default=None, description="a list of new cell type names."
-    )
-
-
 class MarkVarParam(BaseModel):
     """Determine or mark if each gene meets specific conditions and store results in adata.var as boolean values"""
 
@@ -119,9 +105,6 @@ class CelltypeMapCellTypeParam(BaseModel):
     mapping: Dict[str, str] = Field(
         default=None,
         description="Mapping Dictionary from cluster IDs to cell type names.",
-    )
-    new_names: Optional[List[str]] = Field(
-        default=None, description="a list of new cell type names."
     )
 
 

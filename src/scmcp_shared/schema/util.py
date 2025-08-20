@@ -106,9 +106,6 @@ class CelltypeMapCellTypeParam(BaseModel):
         default=None,
         description="Mapping Dictionary from cluster IDs to cell type names.",
     )
-    new_names: Optional[List[str]] = Field(
-        default=None, description="a list of new cell type names."
-    )
 
 
 class AddLayerParam(BaseModel):
