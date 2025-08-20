@@ -454,3 +454,79 @@ class ScanpyUtilMCP(BaseMCP):
         return Tool.from_function(
             _map_cell_type, name="map_cell_type", enabled=True, tags=["preset"]
         )
+
+    def _tool_describe_obs_column(self):
+        def _describe_obs_column(
+            request: Union[DescribeObsColumnParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
+            """
+            Describe a column in adata.obs with appropriate statistics based on data type.
+
+            For numeric (float) columns: returns .obs[name].describe()
+            For categorical/string columns with fewer than 500 unique values: returns .obs[name].value_counts()
+
+            Args:
+                request: DescribeObsColumnParam or compatible dict/str, specifying the column_name to describe.
+                adinfo: AdataInfo or compatible dict/str, identifying the AnnData object.
+
+            Returns:
+                dict: Descriptive statistics or value counts for the specified column.
+            """
+            try:
+                # Deserialize parameters
+                request = deserialize_mcp_param(request, DescribeObsColumnParam)
+                adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
+
+                result = forward_request("ul_describe_obs_column", request, adinfo)
+                if result is not None:
+                    return result
+
+                adata = get_ads().get_adata(adinfo=adinfo)
+                column_name = request.column_name
+
+                if column_name not in adata.obs.columns:
+                    raise ValueError(f"Column '{column_name}' not found in adata.obs")
+
+                column_data = adata.obs[column_name]
+
+                # Check if column is numeric (float)
+                if pd.api.types.is_numeric_dtype(column_data):
+                    result = column_data.describe().to_dict()
+                    result_type = "numeric_describe"
+                else:
+                    # For categorical or string columns
+                    unique_count = column_data.nunique()
+                    if unique_count < 500:
+                        result = column_data.value_counts().to_dict()
+                        result_type = "categorical_value_counts"
+                    else:
+                        result = {
+                            "unique_count": unique_count,
+                            "message": f"Column has {unique_count} unique values (>= 500), showing only count",
+                        }
+                        result_type = "high_cardinality_summary"
+
+                func_kwargs = {"column_name": column_name}
+                add_op_log(adata, "describe_obs_column", func_kwargs, adinfo)
+
+                return {
+                    "column_name": column_name,
+                    "result_type": result_type,
+                    "data": result,
+                }
+
+            except ToolError as e:
+                raise ToolError(e)
+            except Exception as e:
+                if hasattr(e, "__context__") and e.__context__:
+                    raise ToolError(e.__context__)
+                else:
+                    raise ToolError(e)
+
+        return Tool.from_function(
+            _describe_obs_column,
+            name="describe_obs_column",
+            enabled=True,
+            tags=["preset"],
+        )

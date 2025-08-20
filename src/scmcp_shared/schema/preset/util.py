@@ -118,3 +118,9 @@ class QueryOpLogParam(BaseModel):
     """QueryOpLogModel"""
 
     n: int = Field(default=10, description="Number of operations to return.")
+
+
+class DescribeObsColumnParam(BaseModel):
+    """Input schema for describing an obs column in AnnData object."""
+
+    column_name: str = Field(description="Name of the column in adata.obs to describe.")
