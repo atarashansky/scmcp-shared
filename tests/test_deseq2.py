@@ -2,11 +2,18 @@ import pytest
 import numpy as np
 import pandas as pd
 from anndata import AnnData
-from scmcp_shared.util import run_deseq2_differential_expression
+from scmcp_shared.server.preset.util import ScanpyUtilMCP
 from scmcp_shared.schema.util import DeSeq2DEParam
+from scmcp_shared.schema.preset import AdataInfo
 import nest_asyncio
 
 nest_asyncio.apply()
+
+
+@pytest.fixture
+def util_mcp():
+    """Create a ScanpyUtilMCP instance for testing"""
+    return ScanpyUtilMCP()
 
 
 @pytest.fixture
@@ -82,18 +89,18 @@ def test_deseq2_param_validation():
         )
 
 
-def test_deseq2_function_validation(mock_adata):
+def test_deseq2_function_validation(mock_adata, util_mcp):
     """Test function input validation"""
     # Test with missing condition column
     with pytest.raises(ValueError, match="Condition column 'missing_col' not found"):
-        run_deseq2_differential_expression(
+        util_mcp._run_deseq2_analysis(
             mock_adata, 
             contrast=['missing_col', 'treatment', 'control']
         )
     
     # Test with missing group in condition column
     with pytest.raises(ValueError, match="Group 'missing_group' not found"):
-        run_deseq2_differential_expression(
+        util_mcp._run_deseq2_analysis(
             mock_adata, 
             contrast=['condition', 'missing_group', 'control']
         )
@@ -102,16 +109,16 @@ def test_deseq2_function_validation(mock_adata):
     negative_adata = mock_adata.copy()
     negative_adata.X[0, 0] = -1
     with pytest.raises(ValueError, match="pyDeSeq2 requires non-negative count data"):
-        run_deseq2_differential_expression(
+        util_mcp._run_deseq2_analysis(
             negative_adata, 
             contrast=['condition', 'treatment', 'control']
         )
 
 
-def test_deseq2_basic_functionality(mock_adata, deseq2_params):
+def test_deseq2_basic_functionality(mock_adata, deseq2_params, util_mcp):
     """Test basic DESeq2 functionality (requires pyDeSeq2 installation)"""
     try:
-        result = run_deseq2_differential_expression(
+        result = util_mcp._run_deseq2_analysis(
             mock_adata,
             contrast=deseq2_params.contrast,
             alpha=deseq2_params.alpha,
@@ -141,10 +148,10 @@ def test_deseq2_basic_functionality(mock_adata, deseq2_params):
         pytest.skip("pyDeSeq2 not installed, skipping integration test")
 
 
-def test_deseq2_empty_result(mock_adata):
+def test_deseq2_empty_result(mock_adata, util_mcp):
     """Test DESeq2 with very stringent parameters that should return empty result"""
     try:
-        result = run_deseq2_differential_expression(
+        result = util_mcp._run_deseq2_analysis(
             mock_adata,
             contrast=['condition', 'treatment', 'control'],
             alpha=0.001,  # Very stringent p-value
@@ -162,7 +169,7 @@ def test_deseq2_empty_result(mock_adata):
         pytest.skip("pyDeSeq2 not installed, skipping integration test")
 
 
-def test_deseq2_with_small_dataset():
+def test_deseq2_with_small_dataset(util_mcp):
     """Test DESeq2 with minimal dataset"""
     # Create very small dataset
     n_obs = 6
@@ -182,7 +189,7 @@ def test_deseq2_with_small_dataset():
     )
     
     try:
-        result = run_deseq2_differential_expression(
+        result = util_mcp._run_deseq2_analysis(
             small_adata,
             contrast=['condition', 'treatment', 'control'],
             alpha=0.05,
@@ -200,11 +207,11 @@ def test_deseq2_with_small_dataset():
         assert "too small" in str(e).lower() or "insufficient" in str(e).lower() or len(str(e)) > 0
 
 
-def test_deseq2_with_layer(mock_adata):
+def test_deseq2_with_layer(mock_adata, util_mcp):
     """Test DESeq2 with specified layer"""
     try:
         # Test with layer parameter
-        result = run_deseq2_differential_expression(
+        result = util_mcp._run_deseq2_analysis(
             mock_adata,
             contrast=['condition', 'treatment', 'control'],
             alpha=0.05,
@@ -223,11 +230,11 @@ def test_deseq2_with_layer(mock_adata):
         pytest.skip("pyDeSeq2 not installed, skipping layer test")
 
 
-def test_deseq2_invalid_layer(mock_adata):
+def test_deseq2_invalid_layer(mock_adata, util_mcp):
     """Test DESeq2 with invalid layer name"""
     try:
         with pytest.raises(KeyError):
-            run_deseq2_differential_expression(
+            util_mcp._run_deseq2_analysis(
                 mock_adata,
                 contrast=['condition', 'treatment', 'control'],
                 alpha=0.05,

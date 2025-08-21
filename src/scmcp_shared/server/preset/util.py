@@ -3,6 +3,7 @@ import pandas as pd
 from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import Tool
 from scmcp_shared.schema.preset.util import *
+from scmcp_shared.schema.util import DeSeq2DEParam
 from scmcp_shared.schema.preset import AdataInfo
 from scmcp_shared.util import (
     forward_request,
@@ -530,3 +531,229 @@ class ScanpyUtilMCP(BaseMCP):
             enabled=True,
             tags=["preset"],
         )
+
+    def _tool_run_deseq2_differential_expression(self):
+        def _run_deseq2_differential_expression(
+            request: Union[DeSeq2DEParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
+            """
+            Run pyDeSeq2 differential expression analysis on AnnData object.
+            
+            This function performs differential gene expression analysis using pyDeSeq2 
+            and returns a table of statistically significant differentially expressed genes.
+            
+            Args:
+                request: DeSeq2DEParam or compatible dict/str, specifying the analysis parameters
+                adinfo: AdataInfo or compatible dict/str, identifying the AnnData object
+                
+            Returns:
+                pandas.DataFrame: Table of significantly differentially expressed genes with columns:
+                    - gene_name: Gene identifier
+                    - log2FoldChange: Log2 fold change (group1 vs group2)
+                    - pvalue: Raw p-value
+                    - padj: Benjamini-Hochberg adjusted p-value
+                    - contrast: Contrast description (group1_vs_group2)
+                    - condition_column: Name of the condition column used
+                    
+            Raises:
+                ImportError: If pydeseq2 or scanpy is not installed
+                ValueError: If input validation fails (missing columns, groups, negative values)
+            """
+            try:
+                # Deserialize parameters
+                request = deserialize_mcp_param(request, DeSeq2DEParam)
+                adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
+
+                result = forward_request("ul_run_deseq2_differential_expression", request, adinfo)
+                if result is not None:
+                    return result
+
+                adata = get_ads().get_adata(adinfo=adinfo)
+                
+                # Run the analysis
+                result_df = self._run_deseq2_analysis(
+                    adata=adata,
+                    contrast=request.contrast,
+                    alpha=request.alpha,
+                    lfc_threshold=request.lfc_threshold,
+                    n_cpus=request.n_cpus,
+                    layer=request.layer
+                )
+                
+                # Log the operation
+                func_kwargs = {
+                    "contrast": request.contrast,
+                    "alpha": request.alpha,
+                    "lfc_threshold": request.lfc_threshold,
+                    "n_cpus": request.n_cpus,
+                    "layer": request.layer
+                }
+                add_op_log(adata, "run_deseq2_differential_expression", func_kwargs, adinfo)
+                
+                return result_df
+                
+            except ToolError as e:
+                raise ToolError(e)
+            except Exception as e:
+                if hasattr(e, "__context__") and e.__context__:
+                    raise ToolError(e.__context__)
+                else:
+                    raise ToolError(e)
+
+        return Tool.from_function(
+            _run_deseq2_differential_expression,
+            name="run_deseq2_differential_expression",
+            enabled=True,
+            tags=["deseq2", "differential_expression", "preset"],
+        )
+
+    def _run_deseq2_analysis(
+        self,
+        adata,
+        contrast,
+        alpha=0.05,
+        lfc_threshold=0.0,
+        n_cpus=1,
+        layer=None
+    ):
+        """
+        Internal method to run pyDeSeq2 differential expression analysis.
+        
+        Args:
+            adata: AnnData object with count data
+            contrast: List of [column_name, group1, group2] for comparison
+            alpha: Significance threshold for adjusted p-values (default: 0.05)
+            lfc_threshold: Log fold change threshold (default: 0.0)
+            n_cpus: Number of CPUs to use (default: 1)
+            layer: Layer of AnnData to use for count data. If None, uses adata.X (default: None)
+            
+        Returns:
+            pandas.DataFrame: Results with significantly differentially expressed genes
+        """
+        import pandas as pd
+        import numpy as np
+        
+        try:
+            from pydeseq2.dds import DeseqDataSet
+            from pydeseq2.ds import DeseqStats
+        except ImportError:
+            raise ImportError("pydeseq2 is required for differential expression analysis. Install with: pip install pydeseq2")
+        
+        try:
+            from scanpy.get import _get_obs_rep
+        except ImportError:
+            raise ImportError("scanpy is required for layer access. Install with: pip install scanpy")
+        
+        # Validate inputs
+        if len(contrast) != 3:
+            raise ValueError("contrast must have exactly 3 elements: [column_name, group1, group2]")
+        
+        condition_col, group1, group2 = contrast
+        
+        # Check if condition column exists
+        if condition_col not in adata.obs.columns:
+            raise ValueError(f"Condition column '{condition_col}' not found in adata.obs")
+        
+        # Check if groups exist in the condition column
+        condition_values = adata.obs[condition_col].unique()
+        if group1 not in condition_values:
+            raise ValueError(f"Group '{group1}' not found in condition column '{condition_col}'. Available groups: {list(condition_values)}")
+        if group2 not in condition_values:
+            raise ValueError(f"Group '{group2}' not found in condition column '{condition_col}'. Available groups: {list(condition_values)}")
+        
+        # Get count data from specified layer or X
+        count_matrix = _get_obs_rep(adata, layer=layer)
+        
+        # Check for non-negative count data
+        if hasattr(count_matrix, 'min'):
+            min_val = count_matrix.min()
+        else:
+            min_val = np.min(count_matrix)
+        
+        if min_val < 0:
+            layer_desc = f"layer '{layer}'" if layer is not None else "adata.X"
+            raise ValueError(f"pyDeSeq2 requires non-negative count data. Found negative values in {layer_desc}")
+        
+        # Ensure integer counts
+        if hasattr(count_matrix, 'astype'):
+            count_matrix = count_matrix.astype(int)
+        else:
+            count_matrix = np.array(count_matrix, dtype=int)
+        
+        # Create counts DataFrame with genes as columns and samples as rows
+        counts_df = pd.DataFrame(
+            count_matrix,
+            index=adata.obs_names,
+            columns=adata.var_names
+        )
+        
+        # Create design matrix
+        design_df = adata.obs[[condition_col]].copy()
+        
+        # Create DeseqDataSet
+        try:
+            dds = DeseqDataSet(
+                counts=counts_df,
+                metadata=design_df,
+                design=f"~ {condition_col}",
+                n_cpus=n_cpus
+            )
+            
+            # Run DESeq2 analysis
+            dds.deseq2()
+            
+            # Get statistics for the contrast
+            stat_res = DeseqStats(dds, contrast=[condition_col, group1, group2], n_cpus=n_cpus)
+            stat_res.summary()
+            
+            # Get results for specific contrast
+            results_df = stat_res.results_df.copy()
+            
+            # Filter for significant results
+            significant_mask = (
+                (results_df['padj'] < alpha) & 
+                (results_df['padj'].notna()) &
+                (abs(results_df['log2FoldChange']) >= lfc_threshold)
+            )
+            
+            significant_results = results_df[significant_mask].copy()
+            
+            # Add gene names and contrast information
+            significant_results['gene_name'] = significant_results.index
+            significant_results['contrast'] = f"{group1}_vs_{group2}"
+            significant_results['condition_column'] = condition_col
+            
+            # Reset index to make gene_name a regular column
+            significant_results = significant_results.reset_index(drop=True)
+            
+            # Sort by adjusted p-value
+            significant_results = significant_results.sort_values('padj')
+            
+            # Select and reorder columns
+            output_columns = [
+                'gene_name', 'log2FoldChange', 'pvalue', 'padj', 
+                'contrast', 'condition_column'
+            ]
+            
+            # Ensure all expected columns exist
+            for col in output_columns:
+                if col not in significant_results.columns:
+                    if col in ['contrast', 'condition_column']:
+                        continue  # These are already added above
+                    else:
+                        significant_results[col] = np.nan
+            
+            return significant_results[output_columns]
+            
+        except Exception as e:
+            # Handle pyDeSeq2-specific errors gracefully
+            if "too small" in str(e).lower() or "insufficient" in str(e).lower():
+                # Return empty DataFrame with correct structure for small datasets
+                empty_df = pd.DataFrame(columns=[
+                    'gene_name', 'log2FoldChange', 'pvalue', 'padj', 
+                    'contrast', 'condition_column'
+                ])
+                return empty_df
+            else:
+                raise e
