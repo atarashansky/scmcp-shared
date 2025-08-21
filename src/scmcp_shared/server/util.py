@@ -3,6 +3,8 @@ import json
 from typing import Optional, List, Dict
 from fastmcp import FastMCP
 from pydantic import Field
+import pandas as pd
+from anndata import AnnData
 
 util_mcp = FastMCP("Util-Server")
 
@@ -50,3 +52,51 @@ def get_path_structure(
 ) -> str:
     """get the directory structure of a path"""
     return get_path_info(path)
+
+
+@util_mcp.tool(tags={"deseq2", "differential_expression"})
+def run_deseq2_differential_expression_tool(
+    adata: AnnData = Field(description="AnnData object with count data"),
+    contrast: List[str] = Field(description="Contrast specification as [column_name, group1, group2]. group1 vs group2 comparison will be performed."),
+    alpha: float = Field(default=0.05, description="Significance threshold for adjusted p-values. Must be between 0 and 1.", ge=0.0, le=1.0),
+    lfc_threshold: float = Field(default=0.0, description="Log fold change threshold for significance. Must be >= 0.", ge=0.0),
+    n_cpus: int = Field(default=1, description="Number of CPUs to use for analysis.", ge=1),
+    layer: Optional[str] = Field(default=None, description="Layer of AnnData to use for count data. If None, uses adata.X. Can specify layer name from adata.layers.")
+) -> pd.DataFrame:
+    """
+    Run pyDeSeq2 differential expression analysis on AnnData object.
+    
+    This function performs differential gene expression analysis using pyDeSeq2 
+    and returns a table of statistically significant differentially expressed genes.
+    
+    Args:
+        adata: AnnData object containing raw count data (non-negative integers)
+        contrast: List of [condition_column, group1, group2] specifying the comparison
+        alpha: Significance threshold for adjusted p-values (default: 0.05)
+        lfc_threshold: Minimum absolute log2 fold change threshold (default: 0.0)
+        n_cpus: Number of CPU cores to use for parallel processing (default: 1)
+        layer: Layer of AnnData to use for count data. If None, uses adata.X (default: None)
+        
+    Returns:
+        pandas.DataFrame: Table of significantly differentially expressed genes with columns:
+            - gene_name: Gene identifier
+            - log2FoldChange: Log2 fold change (group1 vs group2)
+            - pvalue: Raw p-value
+            - padj: Benjamini-Hochberg adjusted p-value
+            - contrast: Contrast description (group1_vs_group2)
+            - condition_column: Name of the condition column used
+            
+    Raises:
+        ImportError: If pydeseq2 is not installed
+        ValueError: If input validation fails (missing columns, groups, negative values)
+    """
+    from ..util import run_deseq2_differential_expression
+    
+    return run_deseq2_differential_expression(
+        adata=adata,
+        contrast=contrast,
+        alpha=alpha,
+        lfc_threshold=lfc_threshold,
+        n_cpus=n_cpus,
+        layer=layer
+    )
