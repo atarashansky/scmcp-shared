@@ -1,4 +1,4 @@
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, field_validator
 from typing import Optional, List, Dict, Any, Literal
 
 
@@ -118,3 +118,38 @@ class QueryOpLogParam(BaseModel):
     """QueryOpLogModel"""
 
     n: int = Field(default=10, description="Number of operations to return.")
+
+
+class DeSeq2DEParam(BaseModel):
+    """Parameters for pyDeSeq2 differential expression analysis"""
+
+    contrast: List[str] = Field(
+        description="Contrast specification as [column_name, group1, group2]. group1 vs group2 comparison will be performed."
+    )
+    alpha: float = Field(
+        default=0.05,
+        description="Significance threshold for adjusted p-values. Must be between 0 and 1.",
+        ge=0.0,
+        le=1.0
+    )
+    lfc_threshold: float = Field(
+        default=0.0,
+        description="Log fold change threshold for significance. Must be >= 0.",
+        ge=0.0
+    )
+    n_cpus: int = Field(
+        default=1,
+        description="Number of CPUs to use for analysis.",
+        ge=1
+    )
+    layer: Optional[str] = Field(
+        default=None,
+        description="Layer of AnnData to use for count data. If None, uses adata.X. Can specify layer name from adata.layers."
+    )
+
+    @field_validator('contrast')
+    @classmethod
+    def validate_contrast(cls, v):
+        if not isinstance(v, list) or len(v) != 3:
+            raise ValueError("contrast must be a list of exactly 3 elements: [column_name, group1, group2]")
+        return v

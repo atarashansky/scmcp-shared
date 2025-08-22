@@ -3,6 +3,8 @@ import json
 from typing import Optional, List, Dict
 from fastmcp import FastMCP
 from pydantic import Field
+import pandas as pd
+from anndata import AnnData
 
 util_mcp = FastMCP("Util-Server")
 
@@ -50,3 +52,6 @@ def get_path_structure(
 ) -> str:
     """get the directory structure of a path"""
     return get_path_info(path)
+
+
+# DESeq2 functionality is now available through ScanpyUtilMCP class in preset/util.py

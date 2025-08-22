@@ -410,3 +410,7 @@ def parse_args(
 
     kwargs_str = ", ".join(kwargs_str_ls)
     return kwargs_str
+
+
+# DESeq2 differential expression functionality has been moved to ScanpyUtilMCP class
+# in src/scmcp_shared/server/preset/util.py

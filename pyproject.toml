@@ -45,6 +45,9 @@ dev = [
     "pytest>=8.3.4",
     "pytest-asyncio>=0.23.5",
 ]
+deseq2 = [
+    "pydeseq2>=0.4.0",
+]
 
 [tool.hatch.version]
 path = "src/scmcp_shared/__init__.py"  
