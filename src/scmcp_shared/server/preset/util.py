@@ -390,7 +390,7 @@ class ScanpyUtilMCP(BaseMCP):
             Map cluster IDs to cell type names in the AnnData object.
 
             This function assigns biological cell type names to clusters identified in adata.obs[cluster_key].
-            The mapping can be provided either as a dictionary (mapping cluster IDs to cell type names) or as a list of new category names.
+            The mapping can be provided as a dictionary (mapping cluster IDs to cell type names).
             The result is stored in a new column (added_key) in adata.obs, or the categories of cluster_key are renamed.
 
             Args:
@@ -410,7 +410,7 @@ class ScanpyUtilMCP(BaseMCP):
                     return result
 
                 ads = get_ads()
-                adata = ads.get_adata(adinfo=adinfo).copy()
+                adata = ads.get_adata(adinfo=adinfo)
                 cluster_key = request.cluster_key
                 added_key = request.added_key
 
@@ -432,9 +432,6 @@ class ScanpyUtilMCP(BaseMCP):
                     "mapping": request.mapping,
                 }
                 add_op_log(adata, "map_cell_type", func_kwargs, adinfo)
-
-                # Update the AnnData in the context
-                ads.set_adata(adata, adinfo=adinfo)
 
                 return [
                     {
@@ -529,4 +526,144 @@ class ScanpyUtilMCP(BaseMCP):
             name="describe_obs_column",
             enabled=True,
             tags=["preset"],
+        )
+
+    def _tool_set_var_names(self):
+        def _set_var_names(
+            request: Union[SetVarNamesParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
+            """
+            Set adata.var_names to the values from a specified column in adata.var.
+
+            This tool allows you to change the variable names (gene names) of the AnnData object
+            to match the values stored in a specific column of adata.var.
+
+            Args:
+                request: SetVarNamesParam or compatible dict/str, specifying the column name to use as var_names.
+                adinfo: AdataInfo or compatible dict/str, identifying the AnnData object.
+
+            Returns:
+                dict: Status message indicating success and the column used.
+            """
+            try:
+                # Deserialize parameters
+                request = deserialize_mcp_param(request, SetVarNamesParam)
+                adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
+
+                result = forward_request("ul_set_var_names", request, adinfo)
+                if result is not None:
+                    return result
+
+                adata = get_ads().get_adata(adinfo=adinfo)
+                var_column = request.var
+
+                if var_column not in adata.var.columns:
+                    raise ValueError(f"Column '{var_column}' not found in adata.var")
+
+                # Set the new var_names
+                adata.var_names = adata.var[var_column].values
+
+                func_kwargs = {"var": var_column}
+                add_op_log(adata, "set_var_names", func_kwargs, adinfo)
+
+                return {
+                    "status": "success",
+                    "message": f"Successfully set adata.var_names to values from column '{var_column}'",
+                }
+
+            except ToolError as e:
+                raise ToolError(e)
+            except Exception as e:
+                if hasattr(e, "__context__") and e.__context__:
+                    raise ToolError(e.__context__)
+                else:
+                    raise ToolError(e)
+
+        return Tool.from_function(
+            _set_var_names, name="set_var_names", enabled=True, tags=["preset"]
+        )
+
+    def _tool_annotate_cells(self):
+        def _annotate_cells(
+            request: Union[AnnotateCellsParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
+            """
+            Annotate specific cells by replacing a label with a new value in an obs column.
+
+            This tool allows you to relabel specific cells by finding cells with a particular
+            label in an obs column and replacing it with a new value. The column is converted
+            to a pandas Series of type string to avoid category or mixed type issues.
+
+            Args:
+                request: AnnotateCellsParam or compatible dict/str, specifying the obs column,
+                        current label to replace, and new value.
+                adinfo: AdataInfo or compatible dict/str, identifying the AnnData object.
+
+            Returns:
+                dict: Status message indicating success and the number of cells updated.
+            """
+            try:
+                # Deserialize parameters
+                request = deserialize_mcp_param(request, AnnotateCellsParam)
+                adinfo = deserialize_mcp_param(adinfo, self.AdataInfo, self.AdataInfo())
+
+                result = forward_request("ul_annotate_cells", request, adinfo)
+                if result is not None:
+                    return result
+
+                adata = get_ads().get_adata(adinfo=adinfo)
+                obs_column = request.obs_column
+                label = request.label
+                new_value = request.new_value
+
+                if obs_column not in adata.obs.columns:
+                    raise ValueError(f"Column '{obs_column}' not found in adata.obs")
+
+                # Convert the column to a pandas Series of type string to avoid category/mixed type issues
+                obs_data = pd.Series(
+                    adata.obs[obs_column].astype(str), index=adata.obs.index
+                )
+
+                # Count how many cells have the current label
+                cells_to_update = obs_data == label
+                num_cells_updated = cells_to_update.sum()
+
+                if num_cells_updated == 0:
+                    return {
+                        "status": "warning",
+                        "message": f"No cells found with label '{label}' in column '{obs_column}'",
+                        "cells_updated": 0,
+                    }
+
+                # Replace the label with the new value
+                obs_data[cells_to_update] = new_value
+
+                # Update the adata.obs column with the modified Series
+                adata.obs[obs_column] = obs_data
+
+                func_kwargs = {
+                    "obs_column": obs_column,
+                    "label": label,
+                    "new_value": new_value,
+                }
+                add_op_log(adata, "annotate_cells", func_kwargs, adinfo)
+
+                return {
+                    "status": "success",
+                    "message": f"Successfully updated {num_cells_updated} cells from '{label}' to '{new_value}' in column '{obs_column}'",
+                    "cells_updated": int(num_cells_updated),
+                }
+
+            except ToolError as e:
+                raise ToolError(e)
+            except Exception as e:
+                if hasattr(e, "__context__") and e.__context__:
+                    raise ToolError(e.__context__)
+                else:
+                    raise ToolError(e)
+
+        return Tool.from_function(
+            _annotate_cells, name="annotate_cells", enabled=True, tags=["preset"]
         )

@@ -4,7 +4,12 @@ from fastmcp.tools.tool import Tool
 from fastmcp.exceptions import ToolError
 from scmcp_shared.schema.preset.pl import *
 from scmcp_shared.schema.preset import AdataInfo
-from scmcp_shared.util import forward_request, sc_like_plot, get_ads, deserialize_mcp_param
+from scmcp_shared.util import (
+    forward_request,
+    sc_like_plot,
+    get_ads,
+    deserialize_mcp_param,
+)
 from scmcp_shared.mcp_base import BaseMCP
 
 
@@ -26,7 +31,10 @@ class ScanpyPlottingMCP(BaseMCP):
         super().__init__("ScanpyMCP-PL-Server", include_tools, exclude_tools, AdataInfo)
 
     def _tool_pca(self):
-        def _pca(request: Union[PCAParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
+        def _pca(
+            request: Union[PCAParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
             """Scatter plot in PCA coordinates. default figure for PCA plot"""
             # Deserialize parameters
             request = deserialize_mcp_param(request, PCAParam)
@@ -49,7 +57,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_diffmap(self):
         def _diffmap(
-            request: Union[DiffusionMapParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[DiffusionMapParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot diffusion map embedding of cells."""
             # Deserialize parameters
@@ -74,7 +83,10 @@ class ScanpyPlottingMCP(BaseMCP):
         )
 
     def _tool_violin(self):
-        def _violin(request: Union[ViolinParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
+        def _violin(
+            request: Union[ViolinParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
             """Plot violin plot of one or more variables."""
             # Deserialize parameters
             request = deserialize_mcp_param(request, ViolinParam)
@@ -101,7 +113,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_stacked_violin(self):
         def _stacked_violin(
-            request: Union[StackedViolinParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[StackedViolinParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot stacked violin plots. Makes a compact image composed of individual violin plots stacked on top of each other."""
             # Deserialize parameters
@@ -129,7 +142,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_heatmap(self):
         async def _heatmap(
-            request: Union[HeatmapParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[HeatmapParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Heatmap of the expression values of genes."""
             # Deserialize parameters
@@ -154,7 +168,10 @@ class ScanpyPlottingMCP(BaseMCP):
         )
 
     def _tool_dotplot(self):
-        def _dotplot(request: Union[DotplotParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None):
+        def _dotplot(
+            request: Union[DotplotParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
+        ):
             """Plot dot plot of expression values per gene for each group."""
             # Deserialize parameters
             request = deserialize_mcp_param(request, DotplotParam)
@@ -179,7 +196,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_matrixplot(self):
         def _matrixplot(
-            request: Union[MatrixplotParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[MatrixplotParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """matrixplot, Create a heatmap of the mean expression values per group of each var_names."""
             # Deserialize parameters
@@ -207,7 +225,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_tracksplot(self):
         def _tracksplot(
-            request: Union[TracksplotParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[TracksplotParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """tracksplot, compact plot of expression of a list of genes."""
             # Deserialize parameters
@@ -233,7 +252,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_scatter(self):
         def _scatter(
-            request: Union[EnhancedScatterParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[EnhancedScatterParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot a scatter plot of two variables, Scatter plot along observations or variables axes."""
             # Deserialize parameters
@@ -259,7 +279,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_embedding(self):
         def _embedding(
-            request: Union[EmbeddingParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[EmbeddingParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Scatter plot for user specified embedding basis (e.g. umap, tsne, etc)."""
             # Deserialize parameters
@@ -289,7 +310,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_embedding_density(self):
         def _embedding_density(
-            request: Union[EmbeddingDensityParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[EmbeddingDensityParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot the density of cells in an embedding."""
             # Deserialize parameters
@@ -317,7 +339,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_rank_genes_groups(self):
         def _rank_genes_groups(
-            request: Union[RankGenesGroupsParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[RankGenesGroupsParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot ranking of genes based on differential expression."""
             # Deserialize parameters
@@ -345,7 +368,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_rank_genes_groups_dotplot(self):
         def _rank_genes_groups_dotplot(
-            request: Union[RankGenesGroupsDotplotParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[RankGenesGroupsDotplotParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot ranking of genes(DEGs) using dotplot visualization. Defualt plot DEGs for rank_genes_groups tool"""
             # Deserialize parameters
@@ -380,7 +404,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_clustermap(self):
         def _clustermap(
-            request: Union[ClusterMapParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[ClusterMapParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot hierarchical clustering of cells and genes."""
             # Deserialize parameters
@@ -408,7 +433,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_highly_variable_genes(self):
         def _highly_variable_genes(
-            request: Union[HighlyVariableGenesParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[HighlyVariableGenesParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """plot highly variable genes; Plot dispersions or normalized variance versus means for genes."""
             # Deserialize parameters
@@ -441,7 +467,8 @@ class ScanpyPlottingMCP(BaseMCP):
 
     def _tool_pca_variance_ratio(self):
         def _pca_variance_ratio(
-            request: Union[PCAVarianceRatioParam, str, dict], adinfo: Union[AdataInfo, str, dict] = None
+            request: Union[PCAVarianceRatioParam, str, dict],
+            adinfo: Union[AdataInfo, str, dict] = None,
         ):
             """Plot the PCA variance ratio to visualize explained variance."""
             # Deserialize parameters

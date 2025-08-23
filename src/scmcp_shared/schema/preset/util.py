@@ -124,3 +124,17 @@ class DescribeObsColumnParam(BaseModel):
     """Input schema for describing an obs column in AnnData object."""
 
     column_name: str = Field(description="Name of the column in adata.obs to describe.")
+
+
+class SetVarNamesParam(BaseModel):
+    """Input schema for setting adata.var_names to a specific column."""
+
+    var: str = Field(description="Column name in adata.var to use as new var_names.")
+
+
+class AnnotateCellsParam(BaseModel):
+    """Input schema for annotating specific cells with new labels."""
+
+    obs_column: str = Field(description="Column name in adata.obs to modify in place.")
+    label: str = Field(description="Current label/value to replace.")
+    new_value: str = Field(description="New value to replace the current label with.")
